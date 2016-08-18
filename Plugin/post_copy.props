@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <UnityDir>$(SolutionDir)..\Unity\</UnityDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Post Build - Copy to Unity</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>SETLOCAL
+
+if "$(PlatformShortName)" == "x86" (
+  set TARGET_PLUGIN_PATH=$(UnityDir)Assets\Plugins\x86
+) else (
+  set TARGET_PLUGIN_PATH=$(UnityDir)Assets\Plugins\x86_64
+)
+
+mkdir "%TARGET_PLUGIN_PATH%"
+echo Target Plugin Path is %TARGET_PLUGIN_PATH%
+
+copy /Y "$(TargetPath)" "%TARGET_PLUGIN_PATH%\$(TargetFileName)"
+
+ENDLOCAL</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="UnityDir">
+      <Value>$(UnityDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

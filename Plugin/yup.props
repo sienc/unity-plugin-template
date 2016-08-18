@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <!-- User Macros -->
+  <PropertyGroup Label="UserMacros">
+    <LibDir>..\..\..\Libraries\</LibDir>
+    <BuildDir>$(SolutionDir)../bin/</BuildDir>
+  </PropertyGroup>
+  <!-- Global Settings -->
+  <PropertyGroup>
+    <_PropertySheetDisplayName>YUP Properties</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Debug -->
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+  </ItemDefinitionGroup>
+  <!-- Release -->
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+  </ItemDefinitionGroup>
+  <!-- Win32 -->
+  <PropertyGroup Condition="'$(Platform)'=='Win32'">
+    <YupPlatform>win32</YupPlatform>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
+  </ItemDefinitionGroup>
+  <!-- x64 -->
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <YupPlatform>win64</YupPlatform>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+  </ItemDefinitionGroup>
+  <!-- Build Macros -->
+  <ItemGroup>
+    <BuildMacro Include="YupPlatform">
+      <Value>$(YupPlatform)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LibDir">
+      <Value>$(LibDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BuildDir">
+      <Value>$(BuildDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
+  <!-- Global Settings -->
+  <PropertyGroup>
+    <OutDir>$(BuildDir)$(YupPlatform)\$(Configuration)\</OutDir>
+    <IntDir>$(YupPlatform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+</Project>
