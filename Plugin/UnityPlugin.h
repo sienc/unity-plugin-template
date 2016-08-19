@@ -90,11 +90,11 @@ private:
 	IUnityGraphics * mGraphics = nullptr;
 	UnityGfxRenderer mDeviceType = kUnityGfxRendererNull;
 
-#if SUPPORT_D3D11
+	#if SUPPORT_D3D11
 	ID3D11Device * mD3D11Device = nullptr;
-#endif
+	#endif
 
-#if SUPPORT_D3D12
+	#if SUPPORT_D3D12
 	const UINT kNodeMask = 0;
 
 	IUnityGraphicsD3D12* s_D3D12 = NULL;
@@ -106,7 +106,7 @@ private:
 	ID3D12Fence* s_D3D12Fence = NULL;
 	UINT64 s_D3D12FenceValue = 1;
 	HANDLE s_D3D12Event = NULL;
-#endif
+	#endif
 
 private:
 	UnityTextureList mUnityTextureList;
@@ -127,14 +127,14 @@ public:
 	void SetTexture(int texId, void* texPtr, int width, int height);
 
 
-#if SUPPORT_D3D11
+	#if SUPPORT_D3D11
 	void DoEventGraphicsDeviceD3D11(UnityGfxDeviceEventType eventType);
 	ID3D11Device * getD3D11Device() const { return mD3D11Device; }
-#endif
+	#endif
 
-#if SUPPORT_D3D12
+	#if SUPPORT_D3D12
 	void DoEventGraphicsDeviceD3D12(UnityGfxDeviceEventType eventType);
-#endif
+	#endif
 
 	IUnityGraphics * getUnityGraphics() const { return mGraphics; }
 	UnityGfxRenderer deviceType() const { return mDeviceType; }

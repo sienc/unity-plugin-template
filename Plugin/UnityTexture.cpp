@@ -1,17 +1,134 @@
 #include "UnityTexture.h"
+#include "dllexport.h"
 
-UnityTexture::UnityTexture(int id, void* texPtr, int width, int height, const UnityPlugin &plugin)
-	: mId(id)
-	, mUnityPlugin(plugin)
-	, mWidth(width)
-	, mHeight(height)
-	, mTexturePointer(texPtr)
+UnityTexture::UnityTexture()
 {
 }
 
+UnityTexture::UnityTexture(void * texPtr, int width, int height)
+{
+	assign(texPtr, width, height);
+}
 
 UnityTexture::~UnityTexture()
 {
+}
+
+bool UnityTexture::create(int width, int height)
+{
+	// release current resources
+	release();
+	mIsOwned = true;
+
+	switch (Plugin.deviceType())
+	{
+
+	#if SUPPORT_D3D11
+	case kUnityGfxRendererD3D11:
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = width;
+		desc.Height = height;
+		desc.MipLevels = desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		desc.SampleDesc.Count = 1;
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.MiscFlags = 0;
+
+		Plugin.getD3D11Device()->CreateTexture2D(&desc, NULL, reinterpret_cast<ID3D11Texture2D **>(&mTexturePointer));
+
+		return true;
+	}
+	#endif
+
+	#if SUPPORT_OPENGL_LEGACY
+	case kUnityGfxRendererOpenGL:
+	{
+		GLuint texId = 0;
+		GLint internalformat = GL_RGBA;
+		GLenum format = GL_RGBA;
+		GLenum type = GL_UNSIGNED_BYTE;
+		const void *pixels = NULL;
+		
+		// setup texture
+		glGenTextures(1, &texId);
+		mTexturePointer = reinterpret_cast<void *>(texId);
+
+		if (texId == 0)
+		{
+			return false;
+		}
+
+		glActiveTexture(0);
+		glBindTexture(GL_TEXTURE_2D, texId);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, pixels);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		GLfloat fLargest;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return true;
+	}
+	#endif
+
+	}
+
+	return false;
+}
+
+void UnityTexture::release()
+{
+	if (!isValid())
+		return;
+
+	if (mIsOwned)
+	{
+		switch (Plugin.deviceType())
+		{
+
+		#if SUPPORT_D3D11
+		case kUnityGfxRendererD3D11:
+		{
+			reinterpret_cast<ID3D11Texture2D *>(mTexturePointer)->Release();
+			break;
+		}
+		#endif
+
+		#if SUPPORT_OPENGL_LEGACY
+		case kUnityGfxRendererOpenGL:
+		{
+			GLuint texId = reinterpret_cast<GLuint>(mTexturePointer);
+			glDeleteTextures(1, &texId);
+			break;
+		}
+		#endif
+
+		}
+	}
+
+	mTexturePointer = nullptr;
+	mWidth = 0;
+	mHeight = 0;
+	mIsOwned = false;
+}
+
+void UnityTexture::assign(void * texPtr, int width, int height)
+{
+	mTexturePointer = texPtr;
+	mWidth = width;
+	mHeight = height;
+	mIsOwned = false;
 }
 
 void UnityTexture::update(const FrameBuffer * buffer)
@@ -21,7 +138,7 @@ void UnityTexture::update(const FrameBuffer * buffer)
 
 #if SUPPORT_D3D9
 	// D3D9 case
-	if (mUnityPlugin.deviceType() == kUnityGfxRendererD3D9)
+	if (Plugin.deviceType() == kUnityGfxRendererD3D9)
 	{
 		// Update native texture from code
 		if (mTexturePointer)
@@ -40,10 +157,10 @@ void UnityTexture::update(const FrameBuffer * buffer)
 
 #if SUPPORT_D3D11
 	// D3D11 case
-	if (mUnityPlugin.deviceType() == kUnityGfxRendererD3D11)
+	if (Plugin.deviceType() == kUnityGfxRendererD3D11)
 	{
 		ID3D11DeviceContext* ctx = NULL;
-		mUnityPlugin.getD3D11Device()->GetImmediateContext(&ctx);
+		Plugin.getD3D11Device()->GetImmediateContext(&ctx);
 
 		// update native texture from code
 		if (mTexturePointer)
@@ -134,7 +251,7 @@ void UnityTexture::update(const FrameBuffer * buffer)
 
 #if SUPPORT_OPENGL_LEGACY
 	// OpenGL 2 legacy case (deprecated)
-	if (mUnityPlugin.deviceType() == kUnityGfxRendererOpenGL)
+	if (Plugin.deviceType() == kUnityGfxRendererOpenGL)
 	{
 		// update native texture from code
 		if (mTexturePointer)

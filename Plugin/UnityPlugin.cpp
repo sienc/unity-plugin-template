@@ -65,7 +65,7 @@ void UnityPlugin::Unload()
 
 void UnityPlugin::SetTexture(int texId, void* texPtr, int width, int height)
 {
-	mUnityTextureList.push_back(UnityTexture(texId, texPtr, width, height, *this));
+	//mUnityTextureList.push_back(UnityTexture(texId, texPtr, width, height, *this));
 }
 
 void UnityPlugin::OnRender(int eventId)
