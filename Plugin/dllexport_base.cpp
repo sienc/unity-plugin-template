@@ -38,6 +38,11 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API SetTexture(int texId,
 	Plugin.SetTexture(texId, texPtr, w, h);
 }
 
+extern "C" TexturePacket UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetTexture(int texId)
+{
+	return Plugin.GetTexture(texId);
+}
+
 static void UNITY_INTERFACE_API OnRenderEvent(int eventId)
 {
 	Plugin.OnRender(eventId);

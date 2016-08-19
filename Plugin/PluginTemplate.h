@@ -20,11 +20,11 @@ public:
 
 	virtual void OnRender(int eventId) override;
 
-	virtual void SetTexture(int texId, void* texPtr, int width, int height) override;
+	//virtual void SetTexture(int texId, void* texPtr, int width, int height) override;
+	virtual TexturePacket GetTexture(int texId) override;
 
 	// Specialized API exports
 	int PluginFunc() { return 123; }
-	TextureData GetTexture() { return mTexture.toStruct(); }
 	
 };
 

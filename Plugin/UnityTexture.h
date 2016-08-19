@@ -2,26 +2,25 @@
 
 class UnityTexture;
 
-#include "UnityPlugin.h"
 #include "yup/FrameBuffer.h"
 
 using yup::FrameBuffer;
 
 extern "C"
 {
-	struct TextureData
+	typedef struct _TexturePacket
 	{
-		void * mResViewPointer;
+		void * mTexturePointer;
 		int mWidth;
 		int mHeight;
-	};
+	} TexturePacket;
 }
 
 class UnityTexture
 {
 private:
 	void * mTexturePointer = nullptr;
-	void * mResViewPointer = nullptr;
+	void * mExternalPointer = nullptr;
 
 	int mWidth = 0;
 	int mHeight = 0;
@@ -37,19 +36,14 @@ public:
 	bool create(int width, int height);
 	void release();
 
-	void assign(void * texPtr, int width, int height);
+	void set(void * texPtr, int width, int height);
 
 	void write(const FrameBuffer * buffer);
 
 	bool isValid() const { return mTexturePointer != nullptr; }
 
-	TextureData toStruct() const {
-		TextureData desc;
-		desc.mResViewPointer = this->mResViewPointer;
-		desc.mWidth = this->mWidth;
-		desc.mHeight = this->mHeight;
-
-		return desc;
+	TexturePacket toPacket() const {
+		return { mExternalPointer, mWidth, mHeight };
 	}
 
 private:

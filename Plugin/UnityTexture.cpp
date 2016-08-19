@@ -7,7 +7,7 @@ UnityTexture::UnityTexture()
 
 UnityTexture::UnityTexture(void * texPtr, int width, int height)
 {
-	assign(texPtr, width, height);
+	set(texPtr, width, height);
 }
 
 UnityTexture::~UnityTexture()
@@ -50,7 +50,7 @@ bool UnityTexture::create(int width, int height)
 			break;
 
 		mTexturePointer = texPtr;
-		mResViewPointer = resView;
+		mExternalPointer = resView;
 		mWidth = width;
 		mHeight = height;
 		mIsOwned = true;
@@ -141,8 +141,10 @@ void UnityTexture::release()
 	mIsOwned = false;
 }
 
-void UnityTexture::assign(void * texPtr, int width, int height)
+void UnityTexture::set(void * texPtr, int width, int height)
 {
+	release();
+
 	mTexturePointer = texPtr;
 	mWidth = width;
 	mHeight = height;

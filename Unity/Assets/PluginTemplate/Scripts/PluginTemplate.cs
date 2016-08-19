@@ -3,19 +3,12 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-[StructLayout(LayoutKind.Sequential)]
-public struct TextureData
-{
-    public IntPtr texPtr;
-    public int width;
-    public int height;
-}
-
 public class PluginTemplate : NativePlugin {
 
     public int pluginFuncVal = 0;
 
-    TextureData texData;
+    private const int TexId = 0;
+
     Texture2D tex;
 
     [DllImport(DllName)]
@@ -28,10 +21,7 @@ public class PluginTemplate : NativePlugin {
     void Start () {
         pluginFuncVal = PluginFunc();
 
-        texData = GetTexture();
-        tex = Texture2D.CreateExternalTexture(texData.width, texData.height, TextureFormat.RGBA32, true, true, texData.texPtr);
-
-        //tex = CreateTexture(0, 640, 480);
+        tex = CreateExternalTexture(TexId);
 
         // debug
         var renderer = GetComponent<Renderer>();

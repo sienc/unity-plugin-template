@@ -69,6 +69,11 @@ void UnityPlugin::SetTexture(int texId, void* texPtr, int width, int height)
 	//mUnityTextureList.push_back(UnityTexture(texId, texPtr, width, height, *this));
 }
 
+TexturePacket UnityPlugin::GetTexture(int texId)
+{
+	return { NULL, 0, 0 };
+}
+
 void UnityPlugin::OnRender(int eventId)
 {
 	// Unknown graphics device type? Do nothing.

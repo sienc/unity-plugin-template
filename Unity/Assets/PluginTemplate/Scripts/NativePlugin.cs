@@ -8,6 +8,21 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 
+
+[StructLayout(LayoutKind.Sequential)]
+public struct TextureData
+{
+    public IntPtr texPtr;
+    public int width;
+    public int height;
+
+    public bool isValid()
+    {
+        return texPtr.ToInt64() != 0;
+    }
+}
+
+
 public class NativePlugin : MonoBehaviour {
 
 #if UNITY_IPHONE && !UNITY_EDITOR
@@ -32,6 +47,9 @@ public class NativePlugin : MonoBehaviour {
     [DllImport(DllName)]
 	private static extern void SetTexture(int texId, System.IntPtr texture, int w, int h);
 
+    [DllImport(DllName)]
+    private static extern TextureData GetTexture(int texId);
+
     private IEnumerator CallPluginAtEndOfFrames()
     {
         while (true)
@@ -42,7 +60,8 @@ public class NativePlugin : MonoBehaviour {
         }
     }
 
-    protected Texture2D CreateTexture(int texId, int width, int height)
+    // Create a texture in Unity and share it with the native plugin
+    protected Texture2D CreateSharedTexture(int texId, int width, int height)
     {
         // Create a texture
         Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
@@ -52,6 +71,16 @@ public class NativePlugin : MonoBehaviour {
 		SetTexture(texId, tex.GetNativeTexturePtr(), tex.width, tex.height);
 
         return tex;
+    }
+
+    // Create a Unity texture from a native resource
+    protected Texture2D CreateExternalTexture(int texId)
+    {
+        TextureData texData = GetTexture(texId);
+        if (texData.isValid())
+            return Texture2D.CreateExternalTexture(texData.width, texData.height, TextureFormat.RGBA32, false, true, texData.texPtr);
+        else
+            return null;
     }
 
     void OnEnable()
