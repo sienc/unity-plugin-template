@@ -74,7 +74,7 @@ bool UnityTexture::create(int width, int height)
 		if (texId == 0)
 			break;
 
-		mTexturePointer = reinterpret_cast<void *>(texId);
+		mTexturePointer = UINT2PTR(texId);
 		mWidth = width;
 		mHeight = height;
 		mIsOwned = true;
@@ -126,7 +126,7 @@ void UnityTexture::release()
 		#if SUPPORT_OPENGL_LEGACY
 		case kUnityGfxRendererOpenGL:
 		{
-			GLuint texId = reinterpret_cast<GLuint>(mTexturePointer);
+			GLuint texId = PTR2UINT(mTexturePointer);
 			glDeleteTextures(1, &texId);
 			break;
 		}
@@ -151,7 +151,7 @@ void UnityTexture::set(void * texPtr, int width, int height)
 	mIsOwned = false;
 }
 
-void UnityTexture::write(const FrameBuffer * buffer)
+void UnityTexture::write(const uint8_t * buffer, int width, int height, int stride)
 {
 	if (!buffer)
 		return;
@@ -187,9 +187,9 @@ void UnityTexture::write(const FrameBuffer * buffer)
 		{
 			ID3D11Texture2D* d3dtex = (ID3D11Texture2D*)mTexturePointer;
 			D3D11_TEXTURE2D_DESC desc;
-			d3dtex->GetDesc (&desc);
+			d3dtex->GetDesc(&desc);
 
-			ctx->UpdateSubresource(d3dtex, 0, NULL, buffer->cst_data(), buffer->pitch(), 0);
+			ctx->UpdateSubresource(d3dtex, 0, NULL, buffer, width * stride, 0);
 
 		}
 
@@ -287,7 +287,7 @@ void UnityTexture::write(const FrameBuffer * buffer)
 			//glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			//delete[] data;
 
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buffer->width(), buffer->height(), GL_RGBA, GL_UNSIGNED_BYTE, buffer->cst_data());
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 		}
 	}
 #endif
@@ -327,35 +327,32 @@ void UnityTexture::write(const FrameBuffer * buffer)
 #endif
 }
 
-void UnityTexture::FillBuffer(unsigned char * dst, const FrameBuffer *src, int width, int height, int stride)
+void UnityTexture::FillBuffer(unsigned char * dst, const uint8_t *src, int width, int height, int stride)
 {
 	if (!src || !dst)
 		return;
 
-	if (src->width() == width && src->height() == height)
+	const uint8_t *ptrSrc = src;
+
+	for (int y = 0; y < height; ++y)
 	{
-		const uint8_t *ptrSrc = src->cst_data();
-
-		for (int y = 0; y < height; ++y)
+		uint8_t *ptrDst = dst;
+		for (int x = 0; x < width; ++x)
 		{
-			uint8_t *ptrDst = dst;
-			for (int x = 0; x < width; ++x)
-			{
-				// Simple oldskool "plasma effect", a bunch of combined sine waves
+			// Simple oldskool "plasma effect", a bunch of combined sine waves
 
-				// Write the texture pixel
-				ptrDst[0] = ptrSrc[0];
-				ptrDst[1] = ptrSrc[1];
-				ptrDst[2] = ptrSrc[2];
-				ptrDst[3] = ptrSrc[3];
+			// Write the texture pixel
+			ptrDst[0] = ptrSrc[0];
+			ptrDst[1] = ptrSrc[1];
+			ptrDst[2] = ptrSrc[2];
+			ptrDst[3] = ptrSrc[3];
 
-				// To next pixel (our pixels are 4 bpp)
-				ptrDst += 4;
-				ptrSrc += 4;
-			}
-
-			// To next image row
-			dst += stride;
+			// To next pixel (our pixels are 4 bpp)
+			ptrDst += 4;
+			ptrSrc += 4;
 		}
+
+		// To next image row
+		dst += stride;
 	}
 }

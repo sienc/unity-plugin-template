@@ -1,10 +1,18 @@
 #pragma once
 
-class UnityTexture;
+#include <cstdint>
 
-#include "yup/FrameBuffer.h"
+#ifndef PTRINT
+#ifdef WIN32
+#define PTRINT uint32_t
+#else
+#define PTRINT uint64_t
+#endif
+#endif
 
-using yup::FrameBuffer;
+#define PTR2UINT(p) ((GLuint)(PTRINT)p)
+#define UINT2PTR(n) ((void *)(PTRINT)n)
+
 
 extern "C"
 {
@@ -38,7 +46,7 @@ public:
 
 	void set(void * texPtr, int width, int height);
 
-	void write(const FrameBuffer * buffer);
+	void write(const uint8_t * buffer, int width, int height, int stride);
 
 	bool isValid() const { return mTexturePointer != nullptr; }
 
@@ -47,5 +55,5 @@ public:
 	}
 
 private:
-	static void FillBuffer(unsigned char * dst, const FrameBuffer *buffer, int width, int height, int stride);
+	static void FillBuffer(unsigned char * dst, const uint8_t *buffer, int width, int height, int stride);
 };
