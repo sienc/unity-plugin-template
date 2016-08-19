@@ -124,7 +124,7 @@ public:
 	virtual void OnRender(int eventId);
 
 	void OnGraphicsDeviceEvent(UnityGfxDeviceEventType eventType);
-	void SetTexture(int texId, void* texPtr, int width, int height);
+	virtual void SetTexture(int texId, void* texPtr, int width, int height);
 
 
 	#if SUPPORT_D3D11

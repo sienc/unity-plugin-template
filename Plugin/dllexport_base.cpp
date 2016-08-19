@@ -25,7 +25,6 @@ extern "C" void	UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnit
 {
 	Plugin.Load(unityInterfaces);
 	Plugin.getUnityGraphics()->RegisterDeviceEventCallback(OnGraphicsDeviceEvent);
-	OnGraphicsDeviceEvent(kUnityGfxDeviceEventInitialize);
 }
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginUnload()

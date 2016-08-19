@@ -57,6 +57,7 @@ void UnityPlugin::Load(IUnityInterfaces * unityInterfaces)
 {
 	mUnityInterfaces = unityInterfaces;
 	mGraphics = mUnityInterfaces->Get<IUnityGraphics>();
+	OnGraphicsDeviceEvent(kUnityGfxDeviceEventInitialize);
 }
 
 void UnityPlugin::Unload()

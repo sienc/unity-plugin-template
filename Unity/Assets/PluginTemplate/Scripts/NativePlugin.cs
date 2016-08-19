@@ -42,14 +42,14 @@ public class NativePlugin : MonoBehaviour {
         }
     }
 
-    private Texture2D CreateTexture(int width, int height)
+    protected Texture2D CreateTexture(int texId, int width, int height)
     {
         // Create a texture
         Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
         tex.filterMode = FilterMode.Point;
         tex.Apply();
 
-		SetTexture(0, tex.GetNativeTexturePtr(), tex.width, tex.height);
+		SetTexture(texId, tex.GetNativeTexturePtr(), tex.width, tex.height);
 
         return tex;
     }
@@ -62,12 +62,12 @@ public class NativePlugin : MonoBehaviour {
             return;
         }
 
-        //StartCoroutine("CallPluginAtEndOfFrames");
+        StartCoroutine("CallPluginAtEndOfFrames");
     }
 
     void OnDisable()
     {
-        //StopAllCoroutines();
+        StopAllCoroutines();
         DisablePlugin();
     }
 }

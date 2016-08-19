@@ -3,19 +3,13 @@
 #ifdef _USRDLL
 
 #include "UnityPlugin.h"
-
-extern "C"
-{
-	typedef struct _DataStruct
-	{
-		int intVal1;
-		int intVal2;
-		int intVal3;
-	} DataStruct;
-}
+#include "UnityTexture.h"
 
 class PluginTemplate : public UnityPlugin
 {
+private:
+	UnityTexture mTexture;
+
 public:
 	// UnityPlugin Overrides
 	virtual void Load(IUnityInterfaces* unityInterfaces) override;
@@ -26,23 +20,12 @@ public:
 
 	virtual void OnRender(int eventId) override;
 
+	virtual void SetTexture(int texId, void* texPtr, int width, int height) override;
+
 	// Specialized API exports
 	int PluginFunc() { return 123; }
-	DataStruct ReturnStruct() {
-		DataStruct data;
-		data.intVal1 = 1;
-		data.intVal2 = 2;
-		data.intVal3 = 3;
-		return data;
-	}
-
-	int SetStruct(DataStruct *data) {
-		data->intVal1 = 1;
-		data->intVal2 = 2;
-		data->intVal3 = 3;
-
-		return -1;
-	}
+	TextureData GetTexture() { return mTexture.toStruct(); }
+	
 };
 
 #endif // _USRDLL

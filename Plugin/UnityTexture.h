@@ -7,17 +7,21 @@ class UnityTexture;
 
 using yup::FrameBuffer;
 
-struct TextureData
+extern "C"
 {
-	void * mTexturePointer = nullptr;
-	int mWidth = 0;
-	int mHeight = 0;
-};
+	struct TextureData
+	{
+		void * mResViewPointer;
+		int mWidth;
+		int mHeight;
+	};
+}
 
 class UnityTexture
 {
 private:
 	void * mTexturePointer = nullptr;
+	void * mResViewPointer = nullptr;
 
 	int mWidth = 0;
 	int mHeight = 0;
@@ -35,17 +39,17 @@ public:
 
 	void assign(void * texPtr, int width, int height);
 
-	void update(const FrameBuffer *buffer);
+	void write(const FrameBuffer * buffer);
 
 	bool isValid() const { return mTexturePointer != nullptr; }
 
 	TextureData toStruct() const {
-		TextureData data;
-		data.mTexturePointer = this->mTexturePointer;
-		data.mWidth = this->mWidth;
-		data.mHeight = this->mHeight;
+		TextureData desc;
+		desc.mResViewPointer = this->mResViewPointer;
+		desc.mWidth = this->mWidth;
+		desc.mHeight = this->mHeight;
 
-		return data;
+		return desc;
 	}
 
 private:

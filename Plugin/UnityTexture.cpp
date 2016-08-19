@@ -18,7 +18,6 @@ bool UnityTexture::create(int width, int height)
 {
 	// release current resources
 	release();
-	mIsOwned = true;
 
 	switch (Plugin.deviceType())
 	{
@@ -32,12 +31,29 @@ bool UnityTexture::create(int width, int height)
 		desc.MipLevels = desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.SampleDesc.Count = 1;
-		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
-		Plugin.getD3D11Device()->CreateTexture2D(&desc, NULL, reinterpret_cast<ID3D11Texture2D **>(&mTexturePointer));
+		ID3D11Texture2D *texPtr = nullptr;
+		HRESULT res = Plugin.getD3D11Device()->CreateTexture2D(&desc, NULL, &texPtr);
+
+		if (res != S_OK || !texPtr)
+			break;
+
+		ID3D11ShaderResourceView *resView = nullptr;
+		res = Plugin.getD3D11Device()->CreateShaderResourceView(texPtr, NULL, &resView);
+
+		if (res != S_OK || !resView)
+			break;
+
+		mTexturePointer = texPtr;
+		mResViewPointer = resView;
+		mWidth = width;
+		mHeight = height;
+		mIsOwned = true;
 
 		return true;
 	}
@@ -54,12 +70,14 @@ bool UnityTexture::create(int width, int height)
 		
 		// setup texture
 		glGenTextures(1, &texId);
-		mTexturePointer = reinterpret_cast<void *>(texId);
 
 		if (texId == 0)
-		{
-			return false;
-		}
+			break;
+
+		mTexturePointer = reinterpret_cast<void *>(texId);
+		mWidth = width;
+		mHeight = height;
+		mIsOwned = true;
 
 		glActiveTexture(0);
 		glBindTexture(GL_TEXTURE_2D, texId);
@@ -100,7 +118,7 @@ void UnityTexture::release()
 		#if SUPPORT_D3D11
 		case kUnityGfxRendererD3D11:
 		{
-			reinterpret_cast<ID3D11Texture2D *>(mTexturePointer)->Release();
+			static_cast<ID3D11Texture2D *>(mTexturePointer)->Release();
 			break;
 		}
 		#endif
@@ -131,7 +149,7 @@ void UnityTexture::assign(void * texPtr, int width, int height)
 	mIsOwned = false;
 }
 
-void UnityTexture::update(const FrameBuffer * buffer)
+void UnityTexture::write(const FrameBuffer * buffer)
 {
 	if (!buffer)
 		return;
@@ -166,8 +184,8 @@ void UnityTexture::update(const FrameBuffer * buffer)
 		if (mTexturePointer)
 		{
 			ID3D11Texture2D* d3dtex = (ID3D11Texture2D*)mTexturePointer;
-			//D3D11_TEXTURE2D_DESC desc;
-			//d3dtex->GetDesc (&desc);
+			D3D11_TEXTURE2D_DESC desc;
+			d3dtex->GetDesc (&desc);
 
 			ctx->UpdateSubresource(d3dtex, 0, NULL, buffer->cst_data(), buffer->pitch(), 0);
 

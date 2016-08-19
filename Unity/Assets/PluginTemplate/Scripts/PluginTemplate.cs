@@ -1,55 +1,43 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct DataStruct {
-    public int intVal1;
-    public int intVal2;
-    public int intVal3;
+public struct TextureData
+{
+    public IntPtr texPtr;
+    public int width;
+    public int height;
 }
 
 public class PluginTemplate : NativePlugin {
 
     public int pluginFuncVal = 0;
 
-    public int data1;
-    public int data2;
-    public int data3;
-
-    DataStruct data;
+    TextureData texData;
+    Texture2D tex;
 
     [DllImport(DllName)]
     private static extern int PluginFunc();
 
     [DllImport(DllName)]
-    private static extern DataStruct ReturnStruct();
-
-    [DllImport(DllName)]
-    private static extern int SetStruct(ref DataStruct data);
+    private static extern TextureData GetTexture();
 
     // Use this for initialization
     void Start () {
         pluginFuncVal = PluginFunc();
 
-        //data1 = SetStruct();
+        texData = GetTexture();
+        tex = Texture2D.CreateExternalTexture(texData.width, texData.height, TextureFormat.RGBA32, true, true, texData.texPtr);
 
-        //data = ReturnStruct();
-        //data1 = data.intVal1;
-        //data2 = data.intVal2;
-        //data3 = data.intVal3;
-        data = new DataStruct();
+        //tex = CreateTexture(0, 640, 480);
 
-        data.intVal1 = 7;
-        data.intVal2 = 8;
-        data.intVal3 = 9;
+        // debug
+        var renderer = GetComponent<Renderer>();
 
-        SetStruct(ref data);
-
-        data1 = data.intVal1;
-        data2 = data.intVal2;
-        data3 = data.intVal3;
-
+        if (renderer)
+            renderer.material.mainTexture = tex;
     }
 
     // Update is called once per frame
