@@ -161,29 +161,6 @@
     <ClInclude Include="PluginTemplate.h" />
     <ClInclude Include="UnityPlugin.h" />
     <ClInclude Include="UnityTexture.h" />
-    <ClInclude Include="yup\App.h" />
-    <ClInclude Include="yup\FrameBuffer.h" />
-    <ClInclude Include="yup\GlUtil.h" />
-    <ClInclude Include="yup\inc_sdl.h" />
-    <ClInclude Include="yup\Log.h" />
-    <ClInclude Include="yup\LoopThread.h" />
-    <ClInclude Include="yup\Matrices.h" />
-    <ClInclude Include="yup\MatUtil.h" />
-    <ClInclude Include="yup\pathtools.h" />
-    <ClInclude Include="yup\PointCloudRenderer.h" />
-    <ClInclude Include="yup\Renderable.h" />
-    <ClInclude Include="yup\SdlApp.h" />
-    <ClInclude Include="yup\ShaderCollection.h" />
-    <ClInclude Include="yup\ShaderSource.h" />
-    <ClInclude Include="yup\Singleton.h" />
-    <ClInclude Include="yup\Thread.h" />
-    <ClInclude Include="yup\unichar.h" />
-    <ClInclude Include="yup\Vectors.h" />
-    <ClInclude Include="yup\VertexArray.h" />
-    <ClInclude Include="yup\VRManager.h" />
-    <ClInclude Include="yup\VRRenderModel.h" />
-    <ClInclude Include="yup\VRSdlApp.h" />
-    <ClInclude Include="yup\yup.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllexport_base.cpp" />
@@ -191,17 +168,6 @@
     <ClCompile Include="dllexport.cpp" />
     <ClCompile Include="UnityPlugin.cpp" />
     <ClCompile Include="UnityTexture.cpp" />
-    <ClCompile Include="yup\App.cpp" />
-    <ClCompile Include="yup\GlUtil.cpp" />
-    <ClCompile Include="yup\Matrices.cpp" />
-    <ClCompile Include="yup\pathtools.cpp" />
-    <ClCompile Include="yup\PointCloudRenderer.cpp" />
-    <ClCompile Include="yup\SdlApp.cpp" />
-    <ClCompile Include="yup\ShaderCollection.cpp" />
-    <ClCompile Include="yup\VertexArray.cpp" />
-    <ClCompile Include="yup\VRManager.cpp" />
-    <ClCompile Include="yup\VRRenderModel.cpp" />
-    <ClCompile Include="yup\VRSdlApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="log.txt" />

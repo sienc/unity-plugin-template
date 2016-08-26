@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Yup">
-      <UniqueIdentifier>{b715c795-a620-4f0a-bd66-5a30c751cd4f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Yup">
-      <UniqueIdentifier>{50b8fe07-6728-4036-b22d-69d9674f66a9}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UnityPlugin.h">
@@ -30,77 +24,8 @@
     <ClInclude Include="dllexport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="yup\FrameBuffer.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\GlUtil.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\Log.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\LoopThread.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\Matrices.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\MatUtil.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\pathtools.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\PointCloudRenderer.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\Renderable.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\SdlApp.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\ShaderCollection.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\ShaderSource.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\Singleton.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\Thread.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\unichar.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\Vectors.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\VertexArray.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\VRManager.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\VRRenderModel.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\VRSdlApp.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\yup.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\App.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
     <ClInclude Include="PluginTemplate.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\inc_sdl.h">
-      <Filter>Header Files\Yup</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -109,39 +34,6 @@
     </ClCompile>
     <ClCompile Include="UnityTexture.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\App.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\GlUtil.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\Matrices.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\pathtools.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\PointCloudRenderer.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\SdlApp.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\ShaderCollection.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\VertexArray.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\VRManager.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\VRRenderModel.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\VRSdlApp.cpp">
-      <Filter>Source Files\Yup</Filter>
     </ClCompile>
     <ClCompile Include="dllexport.cpp">
       <Filter>Source Files</Filter>

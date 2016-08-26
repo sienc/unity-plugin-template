@@ -1,13 +1,9 @@
 ==============================
-YH's Utilities for Prototyping
+YUP Unity Plugin Framework
 ==============================
-
 
 ---
 Log
 ---
-2016-08-25 v0.1.0
-* Automatically copy required DLL and resources to output folder
-
-2016-08-24
+2016-08-26
 * Project created
