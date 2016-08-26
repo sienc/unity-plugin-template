@@ -1,11 +1,25 @@
+// ========================================================================== //
+//
+//  VertexArray.h
+//  ---
+//  GL vertex array
+//
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
+
 #pragma once
+
 #ifdef YUP_INCLUDE_GLEW
 
 #include <vector>
 #include <mutex>
 
 #include "yup.h"
-#include "incl_sdl.h"
+#include "inc_sdl.h"
 #include "Matrices.h"
 
 #ifdef YUP_INCLUDE_OPENCV

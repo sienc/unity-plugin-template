@@ -2,8 +2,8 @@
 
 #ifdef YUP_INCLUDE_SDL
 
-// Include math.h here so M_PI is defined before SDL tries to redefine it
-//#include <math.h>
+// define HAVE_M_PI so SDL does not try to define M_PI before cmath
+#define HAVE_M_PI
 
 // SDL standard includes
 #include <SDL.h>
@@ -21,6 +21,6 @@
 #ifdef YUP_INCLUDE_GLEW
 #include <GL/glew.h>
 #include <GL/wglew.h>
-#endif
+#endif // YUP_INCLUDE_GLEW
 
 #endif // YUP_INCLUDE_SDL

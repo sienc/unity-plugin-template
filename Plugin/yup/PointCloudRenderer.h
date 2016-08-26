@@ -1,4 +1,18 @@
+// ========================================================================== //
+//
+//  PointCloudRenderer.h
+//  ---
+//  A Renderable that renders point cloud
+//
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
+
 #pragma once
+
 #ifdef YUP_INCLUDE_OPENVR
 
 #include <vector>

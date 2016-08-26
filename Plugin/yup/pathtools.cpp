@@ -1,7 +1,17 @@
-//========= Copyright Valve Corporation ============//
+// ========================================================================== //
+//
+//  Matrice.cpp
+//  ---
+//  Based on OpenVR utilities
+//
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
+
 #include "pathtools.h"
-//#include "hmdplatform_private.h"
-//#include "vrcommon/strtools.h"
 
 #if defined( _WIN32)
 #include <Windows.h>
@@ -23,11 +33,14 @@
 
 #include <algorithm>
 
+
+BEGIN_NAMESPACE_YUP_PATH
+
 /** Returns the path (including filename) to the current executable */
-StdString Path_GetExecutablePath()
+ustring GetExecutablePath()
 {
 	bool bSuccess = false;
-	StdChar rchPath[ 1024 ];
+	uchar rchPath[ 1024 ];
 	size_t nBuff = sizeof(rchPath);
 #if defined( _WIN32 )
 	bSuccess = ::GetModuleFileName(NULL, rchPath, (DWORD)nBuff) > 0;
@@ -57,10 +70,10 @@ StdString Path_GetExecutablePath()
 }
 
 /** Returns the path of the current working directory */
-StdString Path_GetWorkingDirectory()
+ustring GetWorkingDirectory()
 {
-	StdString sPath;
-	StdChar buf[ 1024 ];
+	ustring sPath;
+	uchar buf[ 1024 ];
 #if defined( _WIN32 )
 	sPath = _wgetcwd( buf, sizeof( buf ) );
 #else
@@ -70,7 +83,7 @@ StdString Path_GetWorkingDirectory()
 }
 
 /** Sets the path of the current working directory. Returns true if this was successful. */
-bool Path_SetWorkingDirectory( const StdString & sPath )
+bool SetWorkingDirectory( const ustring & sPath )
 {
 	bool bSuccess;
 #if defined( _WIN32 )
@@ -81,14 +94,14 @@ bool Path_SetWorkingDirectory( const StdString & sPath )
 	return bSuccess;
 }
 
-StdString Path_GetModulePath()
+ustring GetModulePath()
 {
 #if defined( _WIN32 )
-	StdChar path[32768];
+	uchar path[32768];
 	HMODULE hm = NULL;
 
 	if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-		(LPCSTR) &Path_GetModulePath, 
+		(LPCSTR) &GetModulePath, 
 		&hm))
 	{
 		int ret = GetLastError();
@@ -100,46 +113,46 @@ StdString Path_GetModulePath()
 	return path;
 #else
 	Dl_info dl_info;
-	dladdr((void *)Path_GetModulePath, &dl_info);
+	dladdr((void *)GetModulePath, &dl_info);
 	return dl_info.dli_fname;
 #endif
 }
 
 /** Returns the specified path without its filename */
-StdString Path_StripFilename( const StdString & sPath, StdChar slash )
+ustring StripFilename( const ustring & sPath, uchar slash )
 {
 	if( slash == 0 )
-		slash = Path_GetSlash();
+		slash = GetSlash();
 
-	StdString::size_type n = sPath.find_last_of( slash );
-	if( n == StdString::npos )
+	ustring::size_type n = sPath.find_last_of( slash );
+	if( n == ustring::npos )
 		return sPath;
 	else
-		return StdString( sPath.begin(), sPath.begin() + n );
+		return ustring( sPath.begin(), sPath.begin() + n );
 }
 
 /** returns just the filename from the provided full or relative path. */
-StdString Path_StripDirectory( const StdString & sPath, StdChar slash )
+ustring StripDirectory( const ustring & sPath, uchar slash )
 {
 	if( slash == 0 )
-		slash = Path_GetSlash();
+		slash = GetSlash();
 
-	StdString::size_type n = sPath.find_last_of( slash );
-	if( n == StdString::npos )
+	ustring::size_type n = sPath.find_last_of( slash );
+	if( n == ustring::npos )
 		return sPath;
 	else
-		return StdString( sPath.begin() + n + 1, sPath.end() );
+		return ustring( sPath.begin() + n + 1, sPath.end() );
 }
 
 /** returns just the filename with no extension of the provided filename. 
 * If there is a path the path is left intact. */
-StdString Path_StripExtension( const StdString & sPath )
+ustring StripExtension( const ustring & sPath )
 {
-	for( StdString::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++ )
+	for( ustring::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++ )
 	{
 		if( *i == '.' )
 		{
-			return StdString( sPath.begin(), i.base() - 1 );
+			return ustring( sPath.begin(), i.base() - 1 );
 		}
 
 		// if we find a slash there is no extension
@@ -153,13 +166,13 @@ StdString Path_StripExtension( const StdString & sPath )
 
 /** returns just the filename with no extension of the provided filename.
 * If there is a path the path is left intact. */
-StdString Path_GetExtension(const StdString & sPath)
+ustring GetExtension(const ustring & sPath)
 {
-	for (StdString::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++)
+	for (ustring::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++)
 	{
 		if (*i == '.')
 		{
-			return StdString(i.base(), sPath.end());
+			return ustring(i.base(), sPath.end());
 		}
 
 		// if we find a slash there is no extension
@@ -171,12 +184,12 @@ StdString Path_GetExtension(const StdString & sPath)
 	return TEXT("");
 }
 
-bool Path_IsAbsolute( const StdString & sPath )
+bool IsAbsolute( const ustring & sPath )
 {
 	if( sPath.empty() )
 		return false;
 
-	if( sPath.find( ':' ) != StdString::npos )
+	if( sPath.find( ':' ) != ustring::npos )
 		return true;
 
 	if( sPath[0] == '\\' || sPath[0] == '/' )
@@ -187,20 +200,20 @@ bool Path_IsAbsolute( const StdString & sPath )
 
 
 /** Makes an absolute path from a relative path and a base path */
-StdString Path_MakeAbsolute( const StdString & sRelativePath, const StdString & sBasePath, StdChar slash )
+ustring MakeAbsolute( const ustring & sRelativePath, const ustring & sBasePath, uchar slash )
 {
 	if( slash == 0 )
-		slash = Path_GetSlash();
+		slash = GetSlash();
 
-	if( Path_IsAbsolute( sRelativePath ) )
+	if( IsAbsolute( sRelativePath ) )
 		return sRelativePath;
 	else
 	{
-		if( !Path_IsAbsolute( sBasePath ) )
+		if( !IsAbsolute( sBasePath ) )
 			return TEXT("");
 
-		StdString sCompacted = Path_Compact( Path_Join( sBasePath, sRelativePath, slash ), slash );
-		if( Path_IsAbsolute( sCompacted ) )
+		ustring sCompacted = Compact( Join( sBasePath, sRelativePath, slash ), slash );
+		if( IsAbsolute( sCompacted ) )
 			return sCompacted;
 		else
 			return TEXT("");
@@ -209,13 +222,13 @@ StdString Path_MakeAbsolute( const StdString & sRelativePath, const StdString & 
 
 
 /** Fixes the directory separators for the current platform */
-StdString Path_FixSlashes( const StdString & sPath, StdChar slash )
+ustring FixSlashes( const ustring & sPath, uchar slash )
 {
 	if( slash == 0 )
-		slash = Path_GetSlash();
+		slash = GetSlash();
 
-	StdString sFixed = sPath;
-	for( StdString::iterator i = sFixed.begin(); i != sFixed.end(); i++ )
+	ustring sFixed = sPath;
+	for( ustring::iterator i = sFixed.begin(); i != sFixed.end(); i++ )
 	{
 		if( *i == '/' || *i == '\\' )
 			*i = slash;
@@ -225,7 +238,7 @@ StdString Path_FixSlashes( const StdString & sPath, StdChar slash )
 }
 
 
-StdChar Path_GetSlash()
+uchar GetSlash()
 {
 #if defined(_WIN32)
 	return '\\';
@@ -235,59 +248,59 @@ StdChar Path_GetSlash()
 }
 
 /** Jams two paths together with the right kind of slash */
-StdString Path_Join( const StdString & first, const StdString & second, StdChar slash )
+ustring Join( const ustring & first, const ustring & second, uchar slash )
 {
 	if( slash == 0 )
-		slash = Path_GetSlash();
+		slash = GetSlash();
 
 	// only insert a slash if we don't already have one
-	StdString::size_type nLen = first.length();
+	ustring::size_type nLen = first.length();
 #if defined(_WIN32)
 	if( first.back() == '\\' || first.back() == '/' )
 	    nLen--;
 #else
-	StdChar last_StdChar = first[first.length()-1];
-	if (last_StdChar == '\\' || last_StdChar == '/')
+	uchar last_uchar = first[first.length()-1];
+	if (last_uchar == '\\' || last_uchar == '/')
 	    nLen--;
 #endif
 
-	return first.substr( 0, nLen ) + StdString( 1, slash ) + second;
+	return first.substr( 0, nLen ) + ustring( 1, slash ) + second;
 }
 
 
-StdString Path_Join( const StdString & first, const StdString & second, const StdString & third, StdChar slash )
+ustring Join( const ustring & first, const ustring & second, const ustring & third, uchar slash )
 {
-	return Path_Join( Path_Join( first, second, slash ), third, slash );
+	return Join( Join( first, second, slash ), third, slash );
 }
 
-StdString Path_Join( const StdString & first, const StdString & second, const StdString & third, const StdString &fourth, StdChar slash )
+ustring Join( const ustring & first, const ustring & second, const ustring & third, const ustring &fourth, uchar slash )
 {
-	return Path_Join( Path_Join( Path_Join( first, second, slash ), third, slash ), fourth, slash );
+	return Join( Join( Join( first, second, slash ), third, slash ), fourth, slash );
 }
 
-StdString Path_Join( 
-	const StdString & first, 
-	const StdString & second, 
-	const StdString & third, 
-	const StdString & fourth, 
-	const StdString & fifth, 
-	StdChar slash )
+ustring Join( 
+	const ustring & first, 
+	const ustring & second, 
+	const ustring & third, 
+	const ustring & fourth, 
+	const ustring & fifth, 
+	uchar slash )
 {
-	return Path_Join( Path_Join( Path_Join( Path_Join( first, second, slash ), third, slash ), fourth, slash ), fifth, slash );
+	return Join( Join( Join( Join( first, second, slash ), third, slash ), fourth, slash ), fifth, slash );
 }
 
 /** Removes redundant <dir>/.. elements in the path. Returns an empty path if the 
 * specified path has a broken number of directories for its number of ..s */
-StdString Path_Compact( const StdString & sRawPath, StdChar slash )
+ustring Compact( const ustring & sRawPath, uchar slash )
 {
 	if( slash == 0 )
-		slash = Path_GetSlash();
+		slash = GetSlash();
 
-	StdString sPath = Path_FixSlashes( sRawPath, slash );
-	StdString sSlashString( 1, slash );
+	ustring sPath = FixSlashes( sRawPath, slash );
+	ustring sSlashString( 1, slash );
 
 	// strip out all /./
-	for( StdString::size_type i = 0; (i + 3) < sPath.length();  )
+	for( ustring::size_type i = 0; (i + 3) < sPath.length();  )
 	{
 		if( sPath[ i ] == slash && sPath[ i+1 ] == '.' && sPath[ i+2 ] == slash )
 		{
@@ -303,7 +316,7 @@ StdString Path_Compact( const StdString & sRawPath, StdChar slash )
 	// get rid of trailing /. but leave the path separator
 	if( sPath.length() > 2 )
 	{
-		StdString::size_type len = sPath.length();
+		ustring::size_type len = sPath.length();
 		if( sPath[ len-1 ] == '.'  && sPath[ len-2 ] == slash )
 		{
 		  // sPath.pop_back();
@@ -322,7 +335,7 @@ StdString Path_Compact( const StdString & sRawPath, StdChar slash )
 
 	// each time we encounter .. back up until we've found the previous directory name
 	// then get rid of both
-	StdString::size_type i = 0;
+	ustring::size_type i = 0;
 	while( i < sPath.length() )
 	{
 		if( i > 0 && sPath.length() - i >= 2 
@@ -336,7 +349,7 @@ StdString Path_Compact( const StdString & sRawPath, StdChar slash )
 				return TEXT("");
 			
 			// find the separator before i-1
-			StdString::size_type iDirStart = i-2;
+			ustring::size_type iDirStart = i-2;
 			while( iDirStart > 0 && sPath[ iDirStart - 1 ] != slash )
 				--iDirStart;
 
@@ -359,7 +372,7 @@ StdString Path_Compact( const StdString & sRawPath, StdChar slash )
 #define MAX_UNICODE_PATH_IN_UTF8	( MAX_UNICODE_PATH * 4 )
 
 /** Returns the path to the current DLL or exe */
-StdString GetThisModulePath()
+ustring GetThisModulePath()
 {
 	// gets the path of vrclient.dll itself
 #ifdef WIN32
@@ -367,19 +380,19 @@ StdString GetThisModulePath()
 
 	::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCTSTR>(GetThisModulePath), &hmodule);
  
-	StdChar *pchPath = new StdChar[MAX_UNICODE_PATH];
+	uchar *pchPath = new uchar[MAX_UNICODE_PATH];
 	::GetModuleFileName(hmodule, pchPath, MAX_UNICODE_PATH);
-	StdString sPath = pchPath;
+	ustring sPath = pchPath;
 	delete[] pchPath;
 	return sPath;
 
 	//wchar_t *pwchPath = new wchar_t[MAX_UNICODE_PATH];
 	//char *pchPath = new char[ MAX_UNICODE_PATH_IN_UTF8 ];
 	//::GetModuleFileNameW( hmodule, pwchPath, MAX_UNICODE_PATH );
-	//WideCharToMultiByte( CP_UTF8, 0, pwchPath, -1, pchPath, MAX_UNICODE_PATH_IN_UTF8, NULL, NULL );
+	//WideCharToMultiByte( CP_UTF8, 0, pwchPath, -1, pchPath, MAX_UNICODE_IN_UTF8, NULL, NULL );
 	//delete[] pwchPath;
 
-	//StdString sPath = pchPath;
+	//ustring sPath = pchPath;
 	//delete [] pchPath;
 	//return sPath;
 
@@ -394,12 +407,12 @@ StdString GetThisModulePath()
 
 
 /** returns true if the specified path exists and is a directory */
-bool Path_IsDirectory( const StdString & sPath )
+bool IsDirectory( const ustring & sPath )
 {
-	StdString sFixedPath = Path_FixSlashes( sPath );
+	ustring sFixedPath = FixSlashes( sPath );
 	if( sFixedPath.empty() )
 		return false;
-	StdChar cLast = sFixedPath[ sFixedPath.length() - 1 ];
+	uchar cLast = sFixedPath[ sFixedPath.length() - 1 ];
 	if( cLast == '/' || cLast == '\\' )
 		sFixedPath.erase( sFixedPath.end() - 1, sFixedPath.end() );
 
@@ -421,9 +434,9 @@ bool Path_IsDirectory( const StdString & sPath )
 //-----------------------------------------------------------------------------
 // Purpose: returns true if the the path exists
 //-----------------------------------------------------------------------------
-bool Path_Exists( const StdString & sPath )
+bool Exists( const ustring & sPath )
 {
-	StdString sFixedPath = Path_FixSlashes( sPath );
+	ustring sFixedPath = FixSlashes( sPath );
 	if( sFixedPath.empty() )
 		return false;
 
@@ -440,23 +453,23 @@ bool Path_Exists( const StdString & sPath )
 //-----------------------------------------------------------------------------
 // Purpose: helper to find a directory upstream from a given path
 //-----------------------------------------------------------------------------
-StdString Path_FindParentDirectoryRecursively( const StdString &strStartDirectory, const StdString &strDirectoryName )
+ustring FindParentDirectoryRecursively( const ustring &strStartDirectory, const ustring &strDirectoryName )
 {
-	StdString strFoundPath = TEXT("");
-	StdString strCurrentPath = Path_FixSlashes( strStartDirectory );
+	ustring strFoundPath = TEXT("");
+	ustring strCurrentPath = FixSlashes( strStartDirectory );
 	if ( strCurrentPath.length() == 0 )
 		return TEXT("");
 
-	bool bExists = Path_Exists( strCurrentPath );
-	StdString strCurrentDirectoryName = Path_StripDirectory( strCurrentPath );
+	bool bExists = Exists( strCurrentPath );
+	ustring strCurrentDirectoryName = StripDirectory( strCurrentPath );
 	if ( bExists && _wcsicmp( strCurrentDirectoryName.c_str(), strDirectoryName.c_str() ) == 0 )
 		return strCurrentPath;
 
 	while( bExists && strCurrentPath.length() != 0 )
 	{
-		strCurrentPath = Path_StripFilename( strCurrentPath );
-		strCurrentDirectoryName = Path_StripDirectory( strCurrentPath );
-		bExists = Path_Exists( strCurrentPath );
+		strCurrentPath = StripFilename( strCurrentPath );
+		strCurrentDirectoryName = StripDirectory( strCurrentPath );
+		bExists = Exists( strCurrentPath );
 		if ( bExists && _wcsicmp( strCurrentDirectoryName.c_str(), strDirectoryName.c_str() ) == 0 )
 			return strCurrentPath;
 	}
@@ -468,22 +481,22 @@ StdString Path_FindParentDirectoryRecursively( const StdString &strStartDirector
 //-----------------------------------------------------------------------------
 // Purpose: helper to find a subdirectory upstream from a given path
 //-----------------------------------------------------------------------------
-StdString Path_FindParentSubDirectoryRecursively( const StdString &strStartDirectory, const StdString &strDirectoryName )
+ustring FindParentSubDirectoryRecursively( const ustring &strStartDirectory, const ustring &strDirectoryName )
 {
-	StdString strFoundPath = TEXT("");
-	StdString strCurrentPath = Path_FixSlashes( strStartDirectory );
+	ustring strFoundPath = TEXT("");
+	ustring strCurrentPath = FixSlashes( strStartDirectory );
 	if ( strCurrentPath.length() == 0 )
 		return TEXT("");
 
-	bool bExists = Path_Exists( strCurrentPath );
+	bool bExists = Exists( strCurrentPath );
 	while( bExists && strCurrentPath.length() != 0 )
 	{
-		strCurrentPath = Path_StripFilename( strCurrentPath );
-		bExists = Path_Exists( strCurrentPath );
+		strCurrentPath = StripFilename( strCurrentPath );
+		bExists = Exists( strCurrentPath );
 
-		if( Path_Exists( Path_Join( strCurrentPath, strDirectoryName ) ) )
+		if( Exists( Join( strCurrentPath, strDirectoryName ) ) )
 		{
-			strFoundPath = Path_Join( strCurrentPath, strDirectoryName );
+			strFoundPath = Join( strCurrentPath, strDirectoryName );
 			break;
 		}
 	}
@@ -494,7 +507,7 @@ StdString Path_FindParentSubDirectoryRecursively( const StdString &strStartDirec
 //-----------------------------------------------------------------------------
 // Purpose: reading and writing files in the vortex directory
 //-----------------------------------------------------------------------------
-unsigned char * Path_ReadBinaryFile( const StdString &strFilename, int *pSize )
+unsigned char * ReadBinaryFile( const ustring &strFilename, int *pSize )
 {
 	FILE *f;
 #if defined( POSIX )
@@ -534,13 +547,13 @@ unsigned char * Path_ReadBinaryFile( const StdString &strFilename, int *pSize )
 }
 
 
-StdString Path_ReadTextFile( const StdString &strFilename )
+ustring ReadTextFile( const ustring &strFilename )
 {
 	// doing it this way seems backwards, but I don't
 	// see an easy way to do this with C/C++ style IO
 	// that isn't worse...
 	int size;
-	unsigned char* buf = Path_ReadBinaryFile( strFilename, &size );
+	unsigned char* buf = ReadBinaryFile( strFilename, &size );
 	if (!buf)
 		return TEXT("");
 
@@ -554,13 +567,13 @@ StdString Path_ReadTextFile( const StdString &strFilename )
 			buf[outsize++] = buf[i]; // just copy
 	}
 
-	StdString ret((StdChar *)buf, (StdChar *)(buf + outsize));
+	ustring ret((uchar *)buf, (uchar *)(buf + outsize));
 	delete[] buf;
 	return ret;
 }
 
 
-bool Path_WriteStringToTextFile( const StdString &strFilename, const StdChar *pchData )
+bool WriteStringToTextFile( const ustring &strFilename, const uchar *pchData )
 {
 	FILE *f;
 #if defined( POSIX )
@@ -583,3 +596,5 @@ bool Path_WriteStringToTextFile( const StdString &strFilename, const StdChar *pc
 
 	return ok;
 }
+
+END_NAMESPACE_YUP_PATH

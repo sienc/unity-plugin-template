@@ -1,11 +1,25 @@
+// ========================================================================== //
+//
+//  VRRenderModel.h
+//  ---
+//  OpenVR render models
+//
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
+
 #pragma once
+
 #ifdef YUP_INCLUDE_OPENVR
 
 #include <openvr.h>
 #include <string>
 
 #include "yup.h"
-#include "incl_sdl.h"
+#include "inc_sdl.h"
 
 BEGIN_NAMESPACE_YUP
 

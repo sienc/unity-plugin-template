@@ -1,33 +1,36 @@
-///////////////////////////////////////////////////////////////////////////////
-// Matrice.cpp
-// ===========
-// NxN Matrix Math classes
+// ========================================================================== //
 //
-// The elements of the matrix are stored as column major order.
-// | 0 2 |    | 0 3 6 |    |  0  4  8 12 |
-// | 1 3 |    | 1 4 7 |    |  1  5  9 13 |
-//            | 2 5 8 |    |  2  6 10 14 |
-//                         |  3  7 11 15 |
+//  Matrice.cpp
+//  ---
+//  Based on Song Ho Ahn (song.ahn@gmail.com)
+//  The elements of the matrix are stored as column major order.
+//  | 0 2 |    | 0 3 6 |    |  0  4  8 12 |
+//  | 1 3 |    | 1 4 7 |    |  1  5  9 13 |
+//             | 2 5 8 |    |  2  6 10 14 |
+//                          |  3  7 11 15 |
 //
-//  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
-// CREATED: 2005-06-24
-// UPDATED: 2014-09-21
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
 //
-// Copyright (C) 2005 Song Ho Ahn
-///////////////////////////////////////////////////////////////////////////////
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
 
 #include <cmath>
 #include <algorithm>
 #include "Matrices.h"
 
-const float DEG2RAD = 3.141593f / 180;
+BEGIN_NAMESPACE_YUP
+
+const float DEG2RAD = 3.141593f / 180.0f;
+const float RAD2DEG = 180.0f / 3.141593f;
 const float EPSILON = 0.00001f;
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// transpose 2x2 matrix
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  transpose 2x2 matrix
+// -------------------------------------------------------------------------- //
 Matrix2& Matrix2::transpose()
 {
     std::swap(m[1],  m[2]);
@@ -36,20 +39,20 @@ Matrix2& Matrix2::transpose()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// return the determinant of 2x2 matrix
-///////////////////////////////////////////////////////////////////////////////
-float Matrix2::getDeterminant()
+// -------------------------------------------------------------------------- //
+//  return the determinant of 2x2 matrix
+// -------------------------------------------------------------------------- //
+float Matrix2::getDeterminant() const
 {
     return m[0] * m[3] - m[1] * m[2];
 }
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// inverse of 2x2 matrix
-// If cannot find inverse, set identity matrix
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  inverse of 2x2 matrix
+//  If cannot find inverse, set identity matrix
+// -------------------------------------------------------------------------- //
 Matrix2& Matrix2::invert()
 {
     float determinant = getDeterminant();
@@ -70,9 +73,28 @@ Matrix2& Matrix2::invert()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// transpose 3x3 matrix
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  retrieve rotation angle in degree from rotation matrix, R
+//  R = | c -s |
+//      | s  c |
+//  angle = atan(s / c)
+// -------------------------------------------------------------------------- //
+float Matrix2::getAngle() const
+{
+    // angle between -pi ~ +pi (-180 ~ +180)
+    return RAD2DEG * atan2f(m[1], m[0]);
+}
+
+//=============================================================================
+
+
+
+
+
+
+// -------------------------------------------------------------------------- //
+//  transpose 3x3 matrix
+// -------------------------------------------------------------------------- //
 Matrix3& Matrix3::transpose()
 {
     std::swap(m[1],  m[3]);
@@ -84,10 +106,10 @@ Matrix3& Matrix3::transpose()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// return determinant of 3x3 matrix
-///////////////////////////////////////////////////////////////////////////////
-float Matrix3::getDeterminant()
+// -------------------------------------------------------------------------- //
+//  return determinant of 3x3 matrix
+// -------------------------------------------------------------------------- //
+float Matrix3::getDeterminant() const
 {
     return m[0] * (m[4] * m[8] - m[5] * m[7]) -
            m[1] * (m[3] * m[8] - m[5] * m[6]) +
@@ -96,10 +118,10 @@ float Matrix3::getDeterminant()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// inverse 3x3 matrix
-// If cannot find inverse, set identity matrix
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  inverse 3x3 matrix
+//  If cannot find inverse, set identity matrix
+// -------------------------------------------------------------------------- //
 Matrix3& Matrix3::invert()
 {
     float determinant, invDeterminant;
@@ -139,9 +161,60 @@ Matrix3& Matrix3::invert()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// transpose 4x4 matrix
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  retrieve angles in degree from rotation matrix, M = Rx*Ry*Rz
+//  Rx: rotation about X-axis, pitch
+//  Ry: rotation about Y-axis, yaw(heading)
+//  Rz: rotation about Z-axis, roll
+//     Rx           Ry          Rz
+//  |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CySz         Sy  |
+//  |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
+//  |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
+//
+//  Pitch: atan(-m[7] / m[8]) = atan(SxCy/CxCy)
+//  Yaw  : asin(m[6]) = asin(Sy)
+//  Roll : atan(-m[3] / m[0]) = atan(SzCy/CzCy)
+// -------------------------------------------------------------------------- //
+Vector3 Matrix3::getAngle() const
+{
+    float pitch, yaw, roll;         // 3 angles
+
+    // find yaw (around y-axis) first
+    // NOTE: asin() returns -90~+90, so correct the angle range -180~+180
+    // using z value of forward vector
+    yaw = RAD2DEG * asinf(m[6]);
+    if(m[8] < 0)
+    {
+        if(yaw >= 0) yaw = 180.0f - yaw;
+        else         yaw =-180.0f - yaw;
+    }
+
+    // find roll (around z-axis) and pitch (around x-axis)
+    // if forward vector is (1,0,0) or (-1,0,0), then m[0]=m[4]=m[9]=m[10]=0
+    if(m[0] > -EPSILON && m[0] < EPSILON)
+    {
+        roll  = 0;  //@@ assume roll=0
+        pitch = RAD2DEG * atan2f(m[1], m[4]);
+    }
+    else
+    {
+        roll = RAD2DEG * atan2f(-m[3], m[0]);
+        pitch = RAD2DEG * atan2f(-m[7], m[8]);
+    }
+
+    return Vector3(pitch, yaw, roll);
+}
+
+//=============================================================================
+
+
+
+
+
+
+// -------------------------------------------------------------------------- //
+//  transpose 4x4 matrix
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::transpose()
 {
     std::swap(m[1],  m[4]);
@@ -156,9 +229,9 @@ Matrix4& Matrix4::transpose()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// inverse 4x4 matrix
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  inverse 4x4 matrix
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::invert()
 {
     // If the 4th row is [0,0,0,1] then it is affine matrix and
@@ -181,27 +254,27 @@ Matrix4& Matrix4::invert()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// compute the inverse of 4x4 Euclidean transformation matrix
+// -------------------------------------------------------------------------- //
+//  compute the inverse of 4x4 Euclidean transformation matrix
 //
-// Euclidean transformation is translation, rotation, and reflection.
-// With Euclidean transform, only the position and orientation of the object
-// will be changed. Euclidean transform does not change the shape of an object
-// (no scaling). Length and angle are reserved.
+//  Euclidean transformation is translation, rotation, and reflection.
+//  With Euclidean transform, only the position and orientation of the object
+//  will be changed. Euclidean transform does not change the shape of an object
+//  (no scaling). Length and angle are reserved.
 //
-// Use inverseAffine() if the matrix has scale and shear transformation.
+//  Use inverseAffine() if the matrix has scale and shear transformation.
 //
-// M = [ R | T ]
-//     [ --+-- ]    (R denotes 3x3 rotation/reflection matrix)
-//     [ 0 | 1 ]    (T denotes 1x3 translation matrix)
+//  M = [ R | T ]
+//      [ --+-- ]    (R denotes 3x3 rotation/reflection matrix)
+//      [ 0 | 1 ]    (T denotes 1x3 translation matrix)
 //
-// y = M*x  ->  y = R*x + T  ->  x = R^-1*(y - T)  ->  x = R^T*y - R^T*T
-// (R is orthogonal,  R^-1 = R^T)
+//  y = M*x  ->  y = R*x + T  ->  x = R^-1*(y - T)  ->  x = R^T*y - R^T*T
+//  (R is orthogonal,  R^-1 = R^T)
 //
-//  [ R | T ]-1    [ R^T | -R^T * T ]    (R denotes 3x3 rotation matrix)
-//  [ --+-- ]   =  [ ----+--------- ]    (T denotes 1x3 translation)
-//  [ 0 | 1 ]      [  0  |     1    ]    (R^T denotes R-transpose)
-///////////////////////////////////////////////////////////////////////////////
+//   [ R | T ]-1    [ R^T | -R^T * T ]    (R denotes 3x3 rotation matrix)
+//   [ --+-- ]   =  [ ----+--------- ]    (T denotes 1x3 translation)
+//   [ 0 | 1 ]      [  0  |     1    ]    (R^T denotes R-transpose)
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::invertEuclidean()
 {
     // transpose 3x3 rotation matrix part
@@ -231,22 +304,22 @@ Matrix4& Matrix4::invertEuclidean()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// compute the inverse of a 4x4 affine transformation matrix
+// -------------------------------------------------------------------------- //
+//  compute the inverse of a 4x4 affine transformation matrix
 //
-// Affine transformations are generalizations of Euclidean transformations.
-// Affine transformation includes translation, rotation, reflection, scaling,
-// and shearing. Length and angle are NOT preserved.
-// M = [ R | T ]
-//     [ --+-- ]    (R denotes 3x3 rotation/scale/shear matrix)
-//     [ 0 | 1 ]    (T denotes 1x3 translation matrix)
+//  Affine transformations are generalizations of Euclidean transformations.
+//  Affine transformation includes translation, rotation, reflection, scaling,
+//  and shearing. Length and angle are NOT preserved.
+//  M = [ R | T ]
+//      [ --+-- ]    (R denotes 3x3 rotation/scale/shear matrix)
+//      [ 0 | 1 ]    (T denotes 1x3 translation matrix)
 //
-// y = M*x  ->  y = R*x + T  ->  x = R^-1*(y - T)  ->  x = R^-1*y - R^-1*T
+//  y = M*x  ->  y = R*x + T  ->  x = R^-1*(y - T)  ->  x = R^-1*y - R^-1*T
 //
-//  [ R | T ]-1   [ R^-1 | -R^-1 * T ]
-//  [ --+-- ]   = [ -----+---------- ]
-//  [ 0 | 1 ]     [  0   +     1     ]
-///////////////////////////////////////////////////////////////////////////////
+//   [ R | T ]-1   [ R^-1 | -R^-1 * T ]
+//   [ --+-- ]   = [ -----+---------- ]
+//   [ 0 | 1 ]     [  0   +     1     ]
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::invertAffine()
 {
     // R^-1
@@ -273,24 +346,24 @@ Matrix4& Matrix4::invertAffine()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// inverse matrix using matrix partitioning (blockwise inverse)
-// It devides a 4x4 matrix into 4 of 2x2 matrices. It works in case of where
-// det(A) != 0. If not, use the generic inverse method
-// inverse formula.
-// M = [ A | B ]    A, B, C, D are 2x2 matrix blocks
-//     [ --+-- ]    det(M) = |A| * |D - ((C * A^-1) * B)|
-//     [ C | D ]
+// -------------------------------------------------------------------------- //
+//  inverse matrix using matrix partitioning (blockwise inverse)
+//  It devides a 4x4 matrix into 4 of 2x2 matrices. It works in case of where
+//  det(A) != 0. If not, use the generic inverse method
+//  inverse formula.
+//  M = [ A | B ]    A, B, C, D are 2x2 matrix blocks
+//      [ --+-- ]    det(M) = |A| * |D - ((C * A^-1) * B)|
+//      [ C | D ]
 //
-// M^-1 = [ A' | B' ]   A' = A^-1 - (A^-1 * B) * C'
-//        [ ---+--- ]   B' = (A^-1 * B) * -D'
-//        [ C' | D' ]   C' = -D' * (C * A^-1)
+//  M^-1 = [ A' | B' ]   A' = A^-1 - (A^-1 * B) * C'
+//         [ ---+--- ]   B' = (A^-1 * B) * -D'
+//         [ C' | D' ]   C' = -D' * (C * A^-1)
 //                      D' = (D - ((C * A^-1) * B))^-1
 //
-// NOTE: I wrap with () if it it used more than once.
-//       The matrix is invertable even if det(A)=0, so must check det(A) before
-//       calling this function, and use invertGeneric() instead.
-///////////////////////////////////////////////////////////////////////////////
+//  NOTE: I wrap with () if it it used more than once.
+//        The matrix is invertable even if det(A)=0, so must check det(A) before
+//        calling this function, and use invertGeneric() instead.
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::invertProjective()
 {
     // partition
@@ -341,11 +414,11 @@ Matrix4& Matrix4::invertProjective()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// compute the inverse of a general 4x4 matrix using Cramer's Rule
-// If cannot find inverse, return indentity matrix
-// M^-1 = adj(M) / det(M)
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  compute the inverse of a general 4x4 matrix using Cramer's Rule
+//  If cannot find inverse, return indentity matrix
+//  M^-1 = adj(M) / det(M)
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::invertGeneral()
 {
     // get cofactors of minor matrices
@@ -405,10 +478,10 @@ Matrix4& Matrix4::invertGeneral()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// return determinant of 4x4 matrix
-///////////////////////////////////////////////////////////////////////////////
-float Matrix4::getDeterminant()
+// -------------------------------------------------------------------------- //
+//  return determinant of 4x4 matrix
+// -------------------------------------------------------------------------- //
+float Matrix4::getDeterminant() const
 {
     return m[0] * getCofactor(m[5],m[6],m[7], m[9],m[10],m[11], m[13],m[14],m[15]) -
            m[1] * getCofactor(m[4],m[6],m[7], m[8],m[10],m[11], m[12],m[14],m[15]) +
@@ -418,14 +491,14 @@ float Matrix4::getDeterminant()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// compute cofactor of 3x3 minor matrix without sign
-// input params are 9 elements of the minor matrix
-// NOTE: The caller must know its sign.
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  compute cofactor of 3x3 minor matrix without sign
+//  input params are 9 elements of the minor matrix
+//  NOTE: The caller must know its sign.
+// -------------------------------------------------------------------------- //
 float Matrix4::getCofactor(float m0, float m1, float m2,
                            float m3, float m4, float m5,
-                           float m6, float m7, float m8)
+                           float m6, float m7, float m8) const
 {
     return m0 * (m4 * m8 - m5 * m7) -
            m1 * (m3 * m8 - m5 * m6) +
@@ -434,9 +507,9 @@ float Matrix4::getCofactor(float m0, float m1, float m2,
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// translate this matrix by (x, y, z)
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  translate this matrix by (x, y, z)
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::translate(const Vector3& v)
 {
     return translate(v.x, v.y, v.z);
@@ -453,9 +526,9 @@ Matrix4& Matrix4::translate(float x, float y, float z)
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// uniform scale
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  uniform scale
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::scale(float s)
 {
     return scale(s, s, s);
@@ -471,10 +544,10 @@ Matrix4& Matrix4::scale(float x, float y, float z)
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// build a rotation matrix with given angle(degree) and rotation axis, then
-// multiply it with this object
-///////////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------- //
+//  build a rotation matrix with given angle(degree) and rotation axis, then
+//  multiply it with this object
+// -------------------------------------------------------------------------- //
 Matrix4& Matrix4::rotate(float angle, const Vector3& axis)
 {
     return rotate(angle, axis.x, axis.y, axis.z);
@@ -580,39 +653,164 @@ Matrix4& Matrix4::rotateZ(float angle)
     return *this;
 }
 
-void Matrix4::getEuler(float& yaw, float& pitch, float& roll) const
-{
-	if (get(0, 0) == 1.0f)
-	{
-		yaw = atan2f(get(0, 2), get(2, 3));
-		pitch = 0;
-		roll = 0;
 
-	}
-	else if (get(0, 0) == -1.0f)
-	{
-		yaw = atan2f(get(0, 2), get(2, 3));
-		pitch = 0;
-		roll = 0;
-	}
-	else
-	{
-		yaw = atan2(-get(2, 0), get(0, 0));
-		roll = asin(get(1, 0));
-		pitch = atan2(-get(1, 2), get(1, 1));
-	}
+
+// -------------------------------------------------------------------------- //
+//  rotate matrix to face along the target direction
+//  NOTE: This function will clear the previous rotation and scale info and
+//  rebuild the matrix with the target vector. But it will keep the previous
+//  translation values.
+//  NOTE: It is for rotating object to look at the target, NOT for camera
+// -------------------------------------------------------------------------- //
+Matrix4& Matrix4::lookAt(const Vector3& target)
+{
+    // compute forward vector and normalize
+    Vector3 position = Vector3(m[12], m[13], m[14]);
+    Vector3 forward = target - position;
+    forward.normalize();
+    Vector3 up;             // up vector of object
+    Vector3 left;           // left vector of object
+
+    // compute temporal up vector
+    // if forward vector is near Y-axis, use up vector (0,0,-1) or (0,0,1)
+    if(fabs(forward.x) < EPSILON && fabs(forward.z) < EPSILON)
+    {
+        // forward vector is pointing +Y axis
+        if(forward.y > 0)
+            up.set(0, 0, -1);
+        // forward vector is pointing -Y axis
+        else
+            up.set(0, 0, 1);
+    }
+    else
+    {
+        // assume up vector is +Y axis
+        up.set(0, 1, 0);
+    }
+
+    // compute left vector
+    left = up.cross(forward);
+    left.normalize();
+
+    // re-compute up vector
+    up = forward.cross(left);
+    //up.normalize();
+
+    // NOTE: overwrite rotation and scale info of the current matrix
+    this->setColumn(0, left);
+    this->setColumn(1, up);
+    this->setColumn(2, forward);
+
+    return *this;
 }
 
-float Matrix4::getHeading() const
+Matrix4& Matrix4::lookAt(const Vector3& target, const Vector3& upVec)
 {
-	float yaw;
+    // compute forward vector and normalize
+    Vector3 position = Vector3(m[12], m[13], m[14]);
+    Vector3 forward = target - position;
+    forward.normalize();
 
-	if (get(0, 0) == 1.0f)
-		yaw = atan2f(get(0, 2), get(2, 3));
-	else if (get(0, 0) == -1.0f)
-		yaw = atan2f(get(0, 2), get(2, 3));
-	else
-		yaw = atan2(-get(2, 0), get(0, 0));
+    // compute left vector
+    Vector3 left = upVec.cross(forward);
+    left.normalize();
 
-	return yaw / (float)M_PI * 180.0f;
+    // compute orthonormal up vector
+    Vector3 up = forward.cross(left);
+    up.normalize();
+
+    // NOTE: overwrite rotation and scale info of the current matrix
+    this->setColumn(0, left);
+    this->setColumn(1, up);
+    this->setColumn(2, forward);
+
+    return *this;
 }
+
+Matrix4& Matrix4::lookAt(float tx, float ty, float tz)
+{
+    return lookAt(Vector3(tx, ty, tz));
+}
+
+Matrix4& Matrix4::lookAt(float tx, float ty, float tz, float ux, float uy, float uz)
+{
+    return lookAt(Vector3(tx, ty, tz), Vector3(ux, uy, uz));
+}
+
+
+
+// -------------------------------------------------------------------------- //
+//  return 3x3 matrix containing rotation only
+// -------------------------------------------------------------------------- //
+Matrix3 Matrix4::getRotationMatrix() const
+{
+    Matrix3 mat(m[0], m[1], m[2],
+                m[4], m[5], m[6],
+                m[8], m[9], m[10]);
+    return mat;
+}
+
+
+
+/*@@
+// -------------------------------------------------------------------------- //
+//  skew with a given angle on the axis
+// -------------------------------------------------------------------------- //
+Matrix4& Matrix4::skew(float angle, const Vector3& axis)
+{
+    float t = tanf(angle * DEG2RAD);    // tangent
+    m[0] += m[1] * t;
+    m[4] += m[5] * t;
+    m[8] += m[9] * t;
+    m[12]+= m[13]* t;
+    return *this;
+}
+*/
+
+
+
+// -------------------------------------------------------------------------- //
+//  retrieve angles in degree from rotation matrix, M = Rx*Ry*Rz
+//  Rx: rotation about X-axis, pitch
+//  Ry: rotation about Y-axis, yaw(heading)
+//  Rz: rotation about Z-axis, roll
+//     Rx           Ry          Rz
+//  |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CySz         Sy  |
+//  |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
+//  |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
+//
+//  Pitch: atan(-m[9] / m[10]) = atan(SxCy/CxCy)
+//  Yaw  : asin(m[8]) = asin(Sy)
+//  Roll : atan(-m[4] / m[0]) = atan(SzCy/CzCy)
+// -------------------------------------------------------------------------- //
+Vector3 Matrix4::getAngle() const
+{
+    float pitch, yaw, roll;         // 3 angles
+
+    // find yaw (around y-axis) first
+    // NOTE: asin() returns -90~+90, so correct the angle range -180~+180
+    // using z value of forward vector
+    yaw = RAD2DEG * asinf(m[8]);
+    if(m[10] < 0)
+    {
+        if(yaw >= 0) yaw = 180.0f - yaw;
+        else         yaw =-180.0f - yaw;
+    }
+
+    // find roll (around z-axis) and pitch (around x-axis)
+    // if forward vector is (1,0,0) or (-1,0,0), then m[0]=m[4]=m[9]=m[10]=0
+    if(m[0] > -EPSILON && m[0] < EPSILON)
+    {
+        roll  = 0;  //@@ assume roll=0
+        pitch = RAD2DEG * atan2f(m[1], m[5]);
+    }
+    else
+    {
+        roll = RAD2DEG * atan2f(-m[4], m[0]);
+        pitch = RAD2DEG * atan2f(-m[9], m[10]);
+    }
+
+    return Vector3(pitch, yaw, roll);
+}
+
+END_NAMESPACE_YUP

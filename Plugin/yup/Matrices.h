@@ -1,36 +1,34 @@
-///////////////////////////////////////////////////////////////////////////////
-// Matrice.h
-// =========
-// NxN Matrix Math classes
+// ========================================================================== //
 //
-// The elements of the matrix are stored as column major order.
-// | 0 2 |    | 0 3 6 |    |  0  4  8 12 |
-// | 1 3 |    | 1 4 7 |    |  1  5  9 13 |
-//            | 2 5 8 |    |  2  6 10 14 |
-//                         |  3  7 11 15 |
+//  Matrice.h
+//  ---
+//  Based on Song Ho Ahn (song.ahn@gmail.com)
+//  The elements of the matrix are stored as column major order.
+//  | 0 2 |    | 0 3 6 |    |  0  4  8 12 |
+//  | 1 3 |    | 1 4 7 |    |  1  5  9 13 |
+//             | 2 5 8 |    |  2  6 10 14 |
+//                          |  3  7 11 15 |
 //
-//  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
-// CREATED: 2005-06-24
-// UPDATED: 2013-09-30
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
 //
-// Copyright (C) 2005 Song Ho Ahn
-///////////////////////////////////////////////////////////////////////////////
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
 
-#ifndef M_PI
-#define M_PI           3.14159265358979323846  /* pi */
-#endif
-
-
-#ifndef MATH_MATRICES_H
-#define MATH_MATRICES_H
+#pragma once
 
 #include <iostream>
 #include <iomanip>
 #include "Vectors.h"
 
-///////////////////////////////////////////////////////////////////////////
-// 2x2 matrix
-///////////////////////////////////////////////////////////////////////////
+#include "yup.h"
+
+BEGIN_NAMESPACE_YUP
+
+// ========================================================================== //
+//  2x2 matrix
+// ========================================================================== //
 class Matrix2
 {
 public:
@@ -47,7 +45,8 @@ public:
     void        setColumn(int index, const Vector2& v);
 
     const float* get() const;
-    float       getDeterminant();
+    float       getDeterminant() const;
+    float       getAngle() const;                       // retrieve angle (degree) from matrix
 
     Matrix2&    identity();
     Matrix2&    transpose();                            // transpose itself and return reference
@@ -66,10 +65,13 @@ public:
     float       operator[](int index) const;            // subscript operator v[0], v[1]
     float&      operator[](int index);                  // subscript operator v[0], v[1]
 
+    // friends functions
     friend Matrix2 operator-(const Matrix2& m);                     // unary operator (-)
     friend Matrix2 operator*(float scalar, const Matrix2& m);       // pre-multiplication
     friend Vector2 operator*(const Vector2& vec, const Matrix2& m); // pre-multiplication
     friend std::ostream& operator<<(std::ostream& os, const Matrix2& m);
+
+    // static functions
 
 protected:
 
@@ -80,9 +82,9 @@ private:
 
 
 
-///////////////////////////////////////////////////////////////////////////
-// 3x3 matrix
-///////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  3x3 matrix
+// ========================================================================== //
 class Matrix3
 {
 public:
@@ -103,7 +105,8 @@ public:
     void        setColumn(int index, const Vector3& v);
 
     const float* get() const;
-    float       getDeterminant();
+    float       getDeterminant() const;
+    Vector3     getAngle() const;                       // return (pitch, yaw, roll)
 
     Matrix3&    identity();
     Matrix3&    transpose();                            // transpose itself and return reference
@@ -122,6 +125,7 @@ public:
     float       operator[](int index) const;            // subscript operator v[0], v[1]
     float&      operator[](int index);                  // subscript operator v[0], v[1]
 
+    // friends functions
     friend Matrix3 operator-(const Matrix3& m);                     // unary operator (-)
     friend Matrix3 operator*(float scalar, const Matrix3& m);       // pre-multiplication
     friend Vector3 operator*(const Vector3& vec, const Matrix3& m); // pre-multiplication
@@ -136,9 +140,9 @@ private:
 
 
 
-///////////////////////////////////////////////////////////////////////////
-// 4x4 matrix
-///////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  4x4 matrix
+// ========================================================================== //
 class Matrix4
 {
 public:
@@ -163,9 +167,10 @@ public:
     void        setColumn(int index, const Vector3& v);
 
     const float* get() const;
-	float        get(int row, int column) const;
     const float* getTranspose();                        // return transposed matrix
-    float        getDeterminant();
+    float       getDeterminant() const;
+    Matrix3     getRotationMatrix() const;              // return 3x3 rotation part
+    Vector3     getAngle() const;                       // return (pitch, yaw, roll)
 
     Matrix4&    identity();
     Matrix4&    transpose();                            // transpose itself and return reference
@@ -185,6 +190,11 @@ public:
     Matrix4&    rotateZ(float angle);                   // rotate on Z-axis with degree
     Matrix4&    scale(float scale);                     // uniform scale
     Matrix4&    scale(float sx, float sy, float sz);    // scale by (sx, sy, sz) on each axis
+    Matrix4&    lookAt(float tx, float ty, float tz);   // face object to the target direction
+    Matrix4&    lookAt(float tx, float ty, float tz, float ux, float uy, float uz);
+    Matrix4&    lookAt(const Vector3& target);
+    Matrix4&    lookAt(const Vector3& target, const Vector3& up);
+    //@@Matrix4&    skew(float angle, const Vector3& axis); //
 
     // operators
     Matrix4     operator+(const Matrix4& rhs) const;    // add rhs
@@ -200,6 +210,7 @@ public:
     float       operator[](int index) const;            // subscript operator v[0], v[1]
     float&      operator[](int index);                  // subscript operator v[0], v[1]
 
+    // friends functions
     friend Matrix4 operator-(const Matrix4& m);                     // unary operator (-)
     friend Matrix4 operator*(float scalar, const Matrix4& m);       // pre-multiplication
     friend Vector3 operator*(const Vector3& vec, const Matrix4& m); // pre-multiplication
@@ -207,22 +218,14 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Matrix4& m);
 
 	// yhc added
-
-	// Get the Euler angles in radian
-	void getEuler(float& yaw, float& pitch, float& roll) const;
-
-	// Get the heading angle in degree
-	float getHeading() const;
-
-		
-	Matrix4& perspective(float fov, float aspect, float zNear, float zFar);
+	Matrix4& perspective(float fov, float aspect, float zNear, float zFar); // Set the matrix as a projection matrix
 
 protected:
 
 private:
     float       getCofactor(float m0, float m1, float m2,
                             float m3, float m4, float m5,
-                            float m6, float m7, float m8);
+                            float m6, float m7, float m8) const;
 
     float m[16];
     float tm[16];                                       // transpose m
@@ -231,9 +234,9 @@ private:
 
 
 
-///////////////////////////////////////////////////////////////////////////
-// inline functions for Matrix2
-///////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  inline functions for Matrix2
+// ========================================================================== //
 inline Matrix2::Matrix2()
 {
     // initially identity matrix
@@ -429,9 +432,9 @@ inline std::ostream& operator<<(std::ostream& os, const Matrix2& m)
 
 
 
-///////////////////////////////////////////////////////////////////////////
-// inline functions for Matrix3
-///////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  inline functions for Matrix3
+// ========================================================================== //
 inline Matrix3::Matrix3()
 {
     // initially identity matrix
@@ -651,9 +654,9 @@ inline std::ostream& operator<<(std::ostream& os, const Matrix3& m)
 
 
 
-///////////////////////////////////////////////////////////////////////////
-// inline functions for Matrix4
-///////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  inline functions for Matrix4
+// ========================================================================== //
 inline Matrix4::Matrix4()
 {
     // initially identity matrix
@@ -749,11 +752,6 @@ inline const float* Matrix4::get() const
     return m;
 }
 
-// yhc add
-inline float Matrix4::get(int row, int column) const
-{
-	return m[row + column*4];
-}
 
 
 inline const float* Matrix4::getTranspose()
@@ -830,9 +828,9 @@ inline Vector4 Matrix4::operator*(const Vector4& rhs) const
 
 inline Vector3 Matrix4::operator*(const Vector3& rhs) const
 {
-    return Vector3(m[0]*rhs.x + m[4]*rhs.y + m[8]*rhs.z,
-                   m[1]*rhs.x + m[5]*rhs.y + m[9]*rhs.z,
-                   m[2]*rhs.x + m[6]*rhs.y + m[10]*rhs.z);
+    return Vector3(m[0]*rhs.x + m[4]*rhs.y + m[8]*rhs.z + m[12],
+                   m[1]*rhs.x + m[5]*rhs.y + m[9]*rhs.z + m[13],
+                   m[2]*rhs.x + m[6]*rhs.y + m[10]*rhs.z+ m[14]);
 }
 
 
@@ -929,6 +927,7 @@ inline std::ostream& operator<<(std::ostream& os, const Matrix4& m)
 }
 
 
+
 // yhc add
 
 // * Fill in the values of a perspective projection matrix
@@ -964,6 +963,6 @@ inline Matrix4& Matrix4::perspective(float fov, float aspect, float zNear, float
 
 	return *this;
 }
-
 // END OF MATRIX4 INLINE //////////////////////////////////////////////////////
-#endif
+
+END_NAMESPACE_YUP

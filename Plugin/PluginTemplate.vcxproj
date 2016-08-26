@@ -162,10 +162,9 @@
     <ClInclude Include="UnityPlugin.h" />
     <ClInclude Include="UnityTexture.h" />
     <ClInclude Include="yup\App.h" />
-    <ClInclude Include="yup\CamSource.h" />
     <ClInclude Include="yup\FrameBuffer.h" />
     <ClInclude Include="yup\GlUtil.h" />
-    <ClInclude Include="yup\incl_sdl.h" />
+    <ClInclude Include="yup\inc_sdl.h" />
     <ClInclude Include="yup\Log.h" />
     <ClInclude Include="yup\LoopThread.h" />
     <ClInclude Include="yup\Matrices.h" />
@@ -193,7 +192,6 @@
     <ClCompile Include="UnityPlugin.cpp" />
     <ClCompile Include="UnityTexture.cpp" />
     <ClCompile Include="yup\App.cpp" />
-    <ClCompile Include="yup\CamSource.cpp" />
     <ClCompile Include="yup\GlUtil.cpp" />
     <ClCompile Include="yup\Matrices.cpp" />
     <ClCompile Include="yup\pathtools.cpp" />
@@ -204,6 +202,13 @@
     <ClCompile Include="yup\VRManager.cpp" />
     <ClCompile Include="yup\VRRenderModel.cpp" />
     <ClCompile Include="yup\VRSdlApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="log.txt" />
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rescopy.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

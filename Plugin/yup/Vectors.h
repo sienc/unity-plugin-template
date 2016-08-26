@@ -1,25 +1,29 @@
-///////////////////////////////////////////////////////////////////////////////
-// Vectors.h
-// =========
-// 2D/3D/4D vectors
+// ========================================================================== //
 //
-//  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
-// CREATED: 2007-02-14
-// UPDATED: 2013-01-20
+//  Vectors.h
+//  ---
+//  Based on Song Ho Ahn (song.ahn@gmail.com)
+//  2D/3D/4D vectors
 //
-// Copyright (C) 2007-2013 Song Ho Ahn
-///////////////////////////////////////////////////////////////////////////////
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
 
-
-#ifndef VECTORS_H_DEF
-#define VECTORS_H_DEF
+#pragma once
 
 #include <cmath>
 #include <iostream>
 
-///////////////////////////////////////////////////////////////////////////////
-// 2D vector
-///////////////////////////////////////////////////////////////////////////////
+#include "yup.h"
+
+BEGIN_NAMESPACE_YUP
+
+// ========================================================================== //
+//  2D vector
+// ========================================================================== //
 struct Vector2
 {
     float x;
@@ -61,9 +65,9 @@ struct Vector2
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// 3D vector
-///////////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  3D vector
+// ========================================================================== //
 struct Vector3
 {
     float x;
@@ -78,6 +82,7 @@ struct Vector3
     void        set(float x, float y, float z);
     float       length() const;                         //
     float       distance(const Vector3& vec) const;     // distance between two vectors
+    float       angle(const Vector3& vec) const;        // angle between two vectors
     Vector3&    normalize();                            //
     float       dot(const Vector3& vec) const;          // dot product
     Vector3     cross(const Vector3& vec) const;        // cross product
@@ -107,9 +112,9 @@ struct Vector3
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// 4D vector
-///////////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  4D vector
+// ========================================================================== //
 struct Vector4
 {
     float x;
@@ -149,9 +154,6 @@ struct Vector4
 
     friend Vector4 operator*(const float a, const Vector4 vec);
     friend std::ostream& operator<<(std::ostream& os, const Vector4& vec);
-
-	float getYawAngle() { return atan2(-z, x); }  // OpenGL coordinates: starting from +X rotating along +Y
-	float getPitchAngle() { return atan2(y, sqrt(x*x+z*z)); }
 };
 
 
@@ -169,9 +171,9 @@ inline float invSqrt(float x)
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// inline functions for Vector2
-///////////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  inline functions for Vector2
+// ========================================================================== //
 inline Vector2 Vector2::operator-() const {
     return Vector2(-x, -y);
 }
@@ -286,9 +288,9 @@ inline std::ostream& operator<<(std::ostream& os, const Vector2& vec) {
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// inline functions for Vector3
-///////////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  inline functions for Vector3
+// ========================================================================== //
 inline Vector3 Vector3::operator-() const {
     return Vector3(-x, -y, -z);
 }
@@ -371,6 +373,15 @@ inline float Vector3::distance(const Vector3& vec) const {
     return sqrtf((vec.x-x)*(vec.x-x) + (vec.y-y)*(vec.y-y) + (vec.z-z)*(vec.z-z));
 }
 
+inline float Vector3::angle(const Vector3& vec) const {
+    // return angle between [0, 180]
+    float l1 = this->length();
+    float l2 = vec.length();
+    float d = this->dot(vec);
+    float angle = acosf(d / (l1 * l2)) / 3.141592f * 180.0f;
+    return angle;
+}
+
 inline Vector3& Vector3::normalize() {
     //@@const float EPSILON = 0.000001f;
     float xxyyzz = x*x + y*y + z*z;
@@ -409,9 +420,9 @@ inline std::ostream& operator<<(std::ostream& os, const Vector3& vec) {
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// inline functions for Vector4
-///////////////////////////////////////////////////////////////////////////////
+// ========================================================================== //
+//  inline functions for Vector4
+// ========================================================================== //
 inline Vector4 Vector4::operator-() const {
     return Vector4(-x, -y, -z, -w);
 }
@@ -530,4 +541,4 @@ inline std::ostream& operator<<(std::ostream& os, const Vector4& vec) {
 }
 // END OF VECTOR4 /////////////////////////////////////////////////////////////
 
-#endif
+END_NAMESPACE_YUP

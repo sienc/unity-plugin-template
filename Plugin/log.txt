@@ -1,0 +1,13 @@
+==============================
+YH's Utilities for Prototyping
+==============================
+
+
+---
+Log
+---
+2016-08-25 v0.1.0
+* Automatically copy required DLL and resources to output folder
+
+2016-08-24
+* Project created

@@ -1,11 +1,25 @@
+// ========================================================================== //
+//
+//  Renderable.h
+//  ---
+//  Base class for all renderable items in the GL space
+//
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
+
 #pragma once
+
 #ifdef YUP_INCLUDE_OPENVR
 
 #include <openvr.h>
 
 #include "yup.h"
-#include "incl_sdl.h"
-#include "util/Matrices.h"
+#include "inc_sdl.h"
+#include "Matrices.h"
 
 BEGIN_NAMESPACE_YUP_GL
 

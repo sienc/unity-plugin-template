@@ -1,3 +1,16 @@
+// ========================================================================== //
+//
+//  FrameBuffer.h
+//  ---
+//  A generalized FrameBuffer class that automatically manages the storage
+//
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
+
 #pragma once
 
 #include <cstdint>
@@ -12,9 +25,15 @@
 #endif
 
 #include "yup.h"
-#include "MatUtil.h"
 
 BEGIN_NAMESPACE_YUP
+
+#ifdef YUP_INCLUDE_OPENCV
+
+static void LoadMatrix8(cv::Mat &mat, const uint8_t *data);
+static void LoadMatrix16(cv::Mat &mat, const uint16_t *data);
+
+#endif // YUP_INCLUDE_OPENCV
 
 // A simple RGBA frame buffer
 class FrameBuffer
@@ -193,5 +212,64 @@ public:
 #endif // YUP_INCLUDE_OPENCV
 
 };
+
+#ifdef YUP_INCLUDE_OPENCV
+
+static void LoadMatrix8(cv::Mat &mat, const uint8_t *data)
+{
+	// accept only char type matrices
+	CV_Assert(mat.depth() == CV_8U);
+
+	const int channels = mat.channels();
+
+	int nRows = mat.rows;
+	int nCols = mat.cols * channels;
+
+	if (mat.isContinuous())
+	{
+		nCols *= nRows;
+		nRows = 1;
+	}
+
+
+	uint8_t* p;
+	for (int r = 0; r < nRows; ++r)
+	{
+		p = mat.ptr<uint8_t>(r);
+		for (int c = 0; c < nCols; ++c)
+			p[c] = data[c];
+
+		data += nCols * channels;
+	}
+}
+
+static void LoadMatrix16(cv::Mat &mat, const uint16_t *data)
+{
+	// accept only char type matrices
+	CV_Assert(mat.depth() == CV_16U);
+
+	const int channels = mat.channels();
+
+	int nRows = mat.rows;
+	int nCols = mat.cols * channels;
+
+	if (mat.isContinuous())
+	{
+		nCols *= nRows;
+		nRows = 1;
+	}
+
+	uint16_t* p;
+	for (int r = 0; r < nRows; ++r)
+	{
+		p = mat.ptr<uint16_t>(r);
+		for (int c = 0; c < nCols; ++c)
+			p[c] = data[c];
+
+		data += nCols * channels;
+	}
+}
+
+#endif // YUP_INCLUDE_OPENCV
 
 END_NAMESPACE_YUP

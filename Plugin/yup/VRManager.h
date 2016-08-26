@@ -1,3 +1,16 @@
+// ========================================================================== //
+//
+//  VRManager.h
+//  ---
+//  OpenVR wrapper class
+//
+//  Created: 2016-08-24
+//  Updated: 2016-08-24
+//
+//  (C) 2016 Yu-hsien Chang
+//
+// ========================================================================== //
+
 #pragma once
 
 #ifdef YUP_INCLUDE_OPENVR
@@ -7,9 +20,9 @@
 #include <vector>
 
 #include "yup.h"
-#include "incl_sdl.h"
+#include "inc_sdl.h"
 #include "Renderable.h"
-#include "Util/Matrices.h"
+#include "Matrices.h"
 
 #include "VRRenderModel.h"
 

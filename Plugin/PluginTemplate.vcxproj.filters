@@ -30,16 +30,10 @@
     <ClInclude Include="dllexport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="yup\CamSource.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
     <ClInclude Include="yup\FrameBuffer.h">
       <Filter>Header Files\Yup</Filter>
     </ClInclude>
     <ClInclude Include="yup\GlUtil.h">
-      <Filter>Header Files\Yup</Filter>
-    </ClInclude>
-    <ClInclude Include="yup\incl_sdl.h">
       <Filter>Header Files\Yup</Filter>
     </ClInclude>
     <ClInclude Include="yup\Log.h">
@@ -105,6 +99,9 @@
     <ClInclude Include="PluginTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="yup\inc_sdl.h">
+      <Filter>Header Files\Yup</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UnityPlugin.cpp">
@@ -114,9 +111,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="yup\App.cpp">
-      <Filter>Source Files\Yup</Filter>
-    </ClCompile>
-    <ClCompile Include="yup\CamSource.cpp">
       <Filter>Source Files\Yup</Filter>
     </ClCompile>
     <ClCompile Include="yup\GlUtil.cpp">
@@ -158,5 +152,18 @@
     <ClCompile Include="PluginTemplate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="log.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rescopy.bat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
