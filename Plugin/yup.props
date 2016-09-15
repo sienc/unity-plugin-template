@@ -1,10 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  YH's Utilities for Prototyping
+  ===
+  General definitions for all Yup projects
+  
+  Created: 2016-08-24
+  Updated: 2015-09-09
+
+  (C) 2016 Yu-hsien Chang
+-->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <!-- User Macros -->
   <PropertyGroup Label="UserMacros">
-    <LibDir>..\..\..\Libraries\</LibDir>
-    <BuildDir>$(SolutionDir)build\</BuildDir>
+    <YupLibDir>..\..\..\Libraries\</YupLibDir>
+    <YupOutDir>$(SolutionDir)build\</YupOutDir>
+    <YupIntDir>$(SolutionDir)interm\</YupIntDir>
   </PropertyGroup>
   <!-- Global Settings -->
   <PropertyGroup>
@@ -15,28 +26,31 @@
       <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>SETLOCAL ENABLEEXTENSIONS
+      <Command>
+        SETLOCAL ENABLEDELAYEDEXPANSION
 
-set TARGET_PATH=$(TargetPath)
-set OUT_DIR=$(OutDir)
-set RES_FILES=$(YupResFiles)
+        set TARGET_PATH=$(TargetPath)
+        set RES_FILES=$(YupIncludedResourceFiles)
+        set OUT_DIR=$(OutDir)
+        set ADD_OUT_DIR=$(YupAdditionalOutDir)
 
-set COPY_DIR=$(YupPostBuildCopyDir)
+        rescopy.bat
 
-rescopy.bat
-
-ENDLOCAL</Command>
+        ENDLOCAL
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <!-- Debug -->
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+  <PropertyGroup Condition="'$(Configuration)'=='Debug' or '$(YupConfiguration)'=='Debug'">
+    <YupConfiguration>Debug</YupConfiguration>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' or '$(YupConfiguration)'=='Debug'">
   </ItemDefinitionGroup>
   <!-- Release -->
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release' or '$(YupConfiguration)'=='Release'">
+    <YupConfiguration>Release</YupConfiguration>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release' or '$(YupConfiguration)'=='Release'">
   </ItemDefinitionGroup>
   <!-- Win32 -->
   <PropertyGroup Condition="'$(Platform)'=='Win32'">
@@ -55,16 +69,22 @@ ENDLOCAL</Command>
     <BuildMacro Include="YupPlatform">
       <Value>$(YupPlatform)</Value>
     </BuildMacro>
-    <BuildMacro Include="LibDir">
-      <Value>$(LibDir)</Value>
+    <BuildMacro Include="YupConfiguration">
+      <Value>$(YupConfiguration)</Value>
     </BuildMacro>
-    <BuildMacro Include="BuildDir">
-      <Value>$(BuildDir)</Value>
+    <BuildMacro Include="YupLibDir">
+      <Value>$(YupLibDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="YupOutDir">
+      <Value>$(YupOutDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="YupIntDir">
+      <Value>$(YupIntDir)</Value>
     </BuildMacro>
   </ItemGroup>
   <!-- Global Settings -->
   <PropertyGroup>
-    <OutDir>$(BuildDir)$(YupPlatform)\$(Configuration)\</OutDir>
-    <IntDir>$(YupPlatform)\$(Configuration)\</IntDir>
+    <OutDir>$(YupOutDir)$(YupPlatform)\$(Configuration)\</OutDir>
+    <IntDir>$(YupIntDir)$(ProjectName)\$(YupPlatform)\$(Configuration)\</IntDir>
   </PropertyGroup>
 </Project>

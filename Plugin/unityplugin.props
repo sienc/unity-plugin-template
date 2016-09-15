@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  YH's Utilities for Prototyping
+  ===
+  General definitions for Unity Plugin projects
+  
+  Created: 2016-08-24
+  Updated: 2015-09-09
+
+  (C) 2016 Yu-hsien Chang
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <UnityProjectDir>$(SolutionDir)..\Unity\</UnityProjectDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_PropertySheetDisplayName>UnityPlugin Properties</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <!-- Debug -->
+  <PropertyGroup Condition="'$(Configuration)'=='DebugApp'">
+    <YupConfiguration>Debug</YupConfiguration>
+  </PropertyGroup>
+  <!-- Win32 -->
+  <PropertyGroup Condition="'$(Platform)'=='Win32' and '$(Configuration)'!='DebugApp'">
+    <YupAdditionalOutDir>$(UnityProjectDir)Assets\Plugins\x86\</YupAdditionalOutDir>
+  </PropertyGroup>
+  <!-- x64 -->
+  <PropertyGroup Condition="'$(Platform)'=='x64' and '$(Configuration)'!='DebugApp'">
+    <YupAdditionalOutDir>$(UnityProjectDir)Assets\Plugins\x86_64\</YupAdditionalOutDir>
+  </PropertyGroup>
+  <!-- Build Macros -->
+  <ItemGroup>
+    <BuildMacro Include="UnityProjectDir">
+      <Value>$(UnityProjectDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="YupConfiguration">
+      <Value>$(YupConfiguration)</Value>
+    </BuildMacro>
+    <BuildMacro Include="YupAdditionalOutDir">
+      <Value>$(YupAdditionalOutDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

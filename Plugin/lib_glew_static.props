@@ -1,9 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Library - GLEW Static
+  ===
+  Static linking to GLEW library
+  
+  Created: 2016-08-24
+  Updated: 2015-09-09
+
+  (C) 2016 Yu-hsien Chang
+-->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
+  <!-- User Macros -->
   <PropertyGroup Label="UserMacros">
-    <GlewDir>$(LibDir)glew-1.13.0\</GlewDir>
+    <GlewDir>$(YupLibDir)glew-1.13.0\</GlewDir>
   </PropertyGroup>
+  <!-- Global Settings -->
   <PropertyGroup>
     <_PropertySheetDisplayName>Library - GLEW Static</_PropertySheetDisplayName>
   </PropertyGroup>
@@ -17,6 +29,7 @@
       <AdditionalDependencies>glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <!-- Build Macros -->
   <ItemGroup>
     <BuildMacro Include="GlewDir">
       <Value>$(GlewDir)</Value>
