@@ -1,6 +1,6 @@
-#include "PluginTemplate.h"
-
 #ifdef _USRDLL
+
+#include "PluginTemplate.h"
 
 void PluginTemplate::Load(IUnityInterfaces * unityInterfaces)
 {

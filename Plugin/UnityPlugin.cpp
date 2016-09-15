@@ -1,6 +1,6 @@
-#include "UnityPlugin.h"
-
 #ifdef _USRDLL
+
+#include "UnityPlugin.h"
 
 UnityPlugin::UnityPlugin()
 {

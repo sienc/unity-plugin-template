@@ -1,3 +1,5 @@
+#ifdef _USRDLL
+
 #include "UnityTexture.h"
 #include "dllexport.h"
 
@@ -356,3 +358,5 @@ void UnityTexture::FillBuffer(unsigned char * dst, const uint8_t *src, int width
 		dst += stride;
 	}
 }
+
+#endif _USRDLL

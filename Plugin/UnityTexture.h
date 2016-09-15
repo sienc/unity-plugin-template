@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef _USRDLL
+
 #include <cstdint>
 
 #ifndef PTRINT
@@ -57,3 +59,5 @@ public:
 private:
 	static void FillBuffer(unsigned char * dst, const uint8_t *buffer, int width, int height, int stride);
 };
+
+#endif _USRDLL

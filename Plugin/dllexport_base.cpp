@@ -1,3 +1,5 @@
+#ifdef _USRDLL
+
 #include "dllexport.h"
 
 OutputPlugin Plugin;
@@ -52,3 +54,5 @@ extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRen
 {
 	return OnRenderEvent;
 }
+
+#endif _USRDLL
